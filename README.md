@@ -1,4 +1,4 @@
-# Cyber-Physical Systems Pipeline
+# Cyber-Physical Systems with Time-Series Forecasting
 
 **Author:** Udisha Dutta Chowdhury  
 **Supervisor:** Prof. Rolando Herrero
