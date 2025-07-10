@@ -32,20 +32,69 @@ class BaseSensor:
             location: Physical location of the sensor
             sampling_rate: Samples per second
             noise_level: Amount of random noise (0.0-1.0)
+            
+        Raises:
+            ValueError: If input parameters are invalid
+            TypeError: If input types are incorrect
         """
+        # Input validation
+        self._validate_inputs(sensor_id, location, sampling_rate, noise_level)
+        
         self.sensor_id = sensor_id
         self.location = location
         self.sampling_rate = sampling_rate
         self.noise_level = noise_level
         self.last_reading = None
         self.created_at = datetime.now()
+        self._reading_count = 0  # Track number of readings taken
         
+    def _validate_inputs(self, sensor_id: str, location: str, 
+                        sampling_rate: float, noise_level: float) -> None:
+        """Validate sensor initialization parameters."""
+        if not isinstance(sensor_id, str) or not sensor_id.strip():
+            raise ValueError("sensor_id must be a non-empty string")
+            
+        if not isinstance(location, str) or not location.strip():
+            raise ValueError("location must be a non-empty string")
+            
+        if not isinstance(sampling_rate, (int, float)) or sampling_rate <= 0:
+            raise ValueError("sampling_rate must be a positive number")
+            
+        if not isinstance(noise_level, (int, float)) or not (0.0 <= noise_level <= 1.0):
+            raise ValueError("noise_level must be between 0.0 and 1.0")
+    
     def add_noise(self, value: float, noise_factor: float = None) -> float:
-        """Add realistic noise to sensor readings."""
+        """
+        Add realistic noise to sensor readings.
+        
+        Args:
+            value: Original sensor value
+            noise_factor: Custom noise factor (defaults to sensor's noise_level)
+            
+        Returns:
+            float: Value with added noise
+            
+        Raises:
+            TypeError: If value is not numeric
+        """
+        if not isinstance(value, (int, float)):
+            raise TypeError("Value must be numeric")
+            
         if noise_factor is None:
             noise_factor = self.noise_level
+        elif not isinstance(noise_factor, (int, float)) or not (0.0 <= noise_factor <= 1.0):
+            raise ValueError("noise_factor must be between 0.0 and 1.0")
+            
         noise = np.random.normal(0, noise_factor * abs(value))
         return value + noise
+    
+    def get_reading_count(self) -> int:
+        """Get the total number of readings taken by this sensor."""
+        return self._reading_count
+        
+    def reset_reading_count(self) -> None:
+        """Reset the reading counter to zero."""
+        self._reading_count = 0
     
     def get_metadata(self) -> Dict:
         """Get sensor metadata."""
@@ -109,6 +158,9 @@ class TemperatureSensor(BaseSensor):
         # Clamp to realistic range
         temperature = np.clip(temperature, self.temp_range[0], self.temp_range[1])
         
+        # Increment reading counter
+        self._reading_count += 1
+        
         self.last_reading = temperature
         
         return {
@@ -117,7 +169,8 @@ class TemperatureSensor(BaseSensor):
             'sensor_type': 'temperature',
             'value': round(temperature, 2),
             'unit': 'celsius',
-            'location': self.location
+            'location': self.location,
+            'reading_number': self._reading_count
         }
 
 
@@ -405,3 +458,74 @@ class DataCollectionManager:
             time.sleep(interval_seconds)
             
         print("Data collection completed")
+        
+    def get_network_statistics(self) -> Dict:
+        """
+        Get comprehensive statistics for all networks.
+        
+        Returns:
+            Dict containing network statistics and sensor performance metrics
+        """
+        stats = {
+            'total_networks': len(self.networks),
+            'networks': {},
+            'overall_readings': 0,
+            'total_sensors': 0
+        }
+        
+        for network_id, network in self.networks.items():
+            network_readings = 0
+            sensor_stats = {}
+            
+            for sensor_id, sensor in network.sensors.items():
+                reading_count = sensor.get_reading_count()
+                network_readings += reading_count
+                sensor_stats[sensor_id] = {
+                    'type': sensor.__class__.__name__,
+                    'location': sensor.location,
+                    'readings_taken': reading_count,
+                    'last_reading': sensor.last_reading,
+                    'created_at': sensor.created_at.isoformat()
+                }
+            
+            stats['networks'][network_id] = {
+                'sensor_count': len(network.sensors),
+                'total_readings': network_readings,
+                'data_buffer_size': len(network.data_buffer),
+                'sensors': sensor_stats,
+                'created_at': network.created_at.isoformat()
+            }
+            
+            stats['overall_readings'] += network_readings
+            stats['total_sensors'] += len(network.sensors)
+            
+        return stats
+        
+    def print_status_report(self) -> None:
+        """Print a formatted status report of all networks and sensors."""
+        stats = self.get_network_statistics()
+        
+        print("=" * 60)
+        print("SENSOR NETWORK STATUS REPORT")
+        print("=" * 60)
+        print(f"Total Networks: {stats['total_networks']}")
+        print(f"Total Sensors: {stats['total_sensors']}")
+        print(f"Overall Readings: {stats['overall_readings']}")
+        print()
+        
+        for network_id, network_data in stats['networks'].items():
+            print(f"Network: {network_id}")
+            print(f"  Sensors: {network_data['sensor_count']}")
+            print(f"  Total Readings: {network_data['total_readings']}")
+            print(f"  Buffer Size: {network_data['data_buffer_size']}")
+            print("  Sensor Details:")
+            
+            for sensor_id, sensor_data in network_data['sensors'].items():
+                print(f"    {sensor_id} ({sensor_data['type']}):")
+                print(f"      Location: {sensor_data['location']}")
+                print(f"      Readings: {sensor_data['readings_taken']}")
+                if sensor_data['last_reading']:
+                    print(f"      Last Value: {sensor_data['last_reading']:.2f}")
+            print()
+        
+        print("=" * 60)

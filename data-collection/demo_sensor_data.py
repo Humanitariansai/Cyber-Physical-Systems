@@ -190,6 +190,48 @@ def demo_data_export():
     print()
 
 
+def demo_monitoring_features():
+    """Demonstrate new monitoring and validation features."""
+    print("=== Monitoring & Validation Demo ===")
+    
+    # Create data collection manager
+    manager = DataCollectionManager()
+    
+    # Set up demo network
+    network = manager.setup_demo_network("Advanced Lab")
+    
+    # Generate some readings to populate counters
+    print("Generating sample readings...")
+    for i in range(5):
+        readings = network.read_all_sensors()
+        print(f"  Batch {i+1}: {len(readings)} readings collected")
+    
+    # Demonstrate error handling
+    print("\nTesting input validation:")
+    try:
+        # This should fail with invalid sensor_id
+        bad_sensor = TemperatureSensor("", "Test Location")
+    except ValueError as e:
+        print(f"  ✓ Caught expected error: {e}")
+    
+    try:
+        # This should fail with invalid noise level
+        bad_sensor = TemperatureSensor("TEST", "Location", noise_level=1.5)
+    except ValueError as e:
+        print(f"  ✓ Caught expected error: {e}")
+    
+    # Show reading counters
+    print("\nSensor reading statistics:")
+    for sensor_id, sensor in network.sensors.items():
+        print(f"  {sensor_id}: {sensor.get_reading_count()} readings")
+    
+    # Show comprehensive status report
+    print("\nNetwork Status Report:")
+    manager.print_status_report()
+    
+    print()
+
+
 def main():
     """Run all demonstrations."""
     print("Sensor Data Simulation Demonstration")
@@ -202,6 +244,7 @@ def main():
     df = demo_time_series_generation()
     demo_realistic_patterns()
     demo_data_export()
+    demo_monitoring_features()  # New demo
     
     print("All demonstrations completed successfully!")
     print("\nNext steps:")
@@ -209,6 +252,7 @@ def main():
     print("2. Use the SensorNetwork class to create custom sensor configurations")
     print("3. Integrate with cloud upload utilities for real-time data streaming")
     print("4. Implement data preprocessing for ML model training")
+    print("5. Use monitoring features to track sensor performance")
 
 
 if __name__ == "__main__":
