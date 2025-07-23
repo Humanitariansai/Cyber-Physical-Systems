@@ -7,6 +7,9 @@ numpy>=1.21.0
 pandas>=1.5.0
 matplotlib>=3.5.0
 seaborn>=0.11.0
+scikit-learn>=1.0.0
+pyarrow>=10.0.0  # For parquet support
+dataclasses-json>=0.5.7  # For enhanced configuration serialization
 
 # Date and time handling
 python-dateutil>=2.8.0

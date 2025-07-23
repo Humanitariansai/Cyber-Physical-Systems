@@ -1,215 +1,288 @@
 # Data Collection Module
 
-**Author:** Udisha Dutta Chowdhury  
-**Supervisor:** Prof. Rolando Herrero
+**Author**: Udisha Dutta Chowdhury  
+**Supervisor**: Prof. Rolando Herrero
 
-This module provides comprehensive sensor data simulation and collection capabilities for cyber-physical systems research and development.
+This module provides advanced sensor data simulation capabilities for cyber-physical systems, including realistic patterns, correlations, anomalies, and ML-ready data generation.
 
-## Overview
+## 📋 Overview
 
-The data collection module generates realistic time-series sensor data that mimics real-world environmental sensors including temperature, humidity, and atmospheric pressure. The simulation includes realistic patterns like:
+The data collection module simulates realistic sensor data with:
+- **Seasonal and daily variations** based on physical phenomena
+- **Weather effects** that influence sensor readings
+- **Cross-sensor correlations** for realistic behavior
+- **Configurable anomalies** for robustness testing
+- **ML-ready datasets** with engineered features
 
-- **Seasonal variations** (temperature changes throughout the year)
-- **Daily cycles** (temperature and humidity patterns during 24-hour periods)
-- **Weather patterns** (pressure variations due to weather systems)
-- **Realistic noise** (sensor measurement uncertainties)
+## 🏗️ Architecture
 
-## Components
+### Core Components
 
-### Core Classes
+1. **Enhanced Configuration System** (`enhanced_config.py`)
+   - Environmental presets (office, outdoor, industrial)
+   - Configurable sensor parameters
+   - ML training configurations
 
-- **`BaseSensor`** - Abstract base class for all sensor types
-- **`TemperatureSensor`** - Simulates temperature sensors with seasonal and daily variations
-- **`HumiditySensor`** - Simulates humidity sensors with daily patterns
-- **`PressureSensor`** - Simulates atmospheric pressure with weather variations
-- **`SensorNetwork`** - Manages multiple sensors and coordinates data collection
-- **`DataCollectionManager`** - High-level manager for sensor networks
+2. **Advanced Pattern Generation** (`advanced_patterns.py`)
+   - Seasonal and weather pattern simulation
+   - Anomaly injection capabilities
+   - Correlation modeling
 
-### Configuration
+3. **Advanced Sensor Simulator** (`advanced_sensor_simulator.py`)
+   - Realistic sensor behavior
+   - Quality metrics and drift simulation
+   - Network-level coordination
 
-- **`config.py`** - Configuration settings and sensor presets for different environments
-- **Environment presets**: Laboratory, Outdoor, Industrial
-- **Configurable parameters**: Base values, variation ranges, noise levels
+4. **Demonstration Scripts**
+   - `demo_advanced_simulation.py` - Comprehensive showcase
+   - `demo_sensor_data.py` - Basic simulation demo
 
-### Utilities
+## 🚀 Quick Start
 
-- **`demo_sensor_data.py`** - Demonstration script showing all functionality
-- **`test_sensors.py`** - Unit tests for validating sensor behavior
-- **`requirements.txt`** - Python dependencies
-
-## Quick Start
-
-### 1. Install Dependencies
-
-```bash
-pip install -r requirements.txt
-```
-
-### 2. Basic Usage
+### Basic Usage
 
 ```python
-from sensor_simulator import TemperatureSensor, SensorNetwork
+from advanced_sensor_simulator import AdvancedDataCollectionManager
 
-# Create a temperature sensor
-temp_sensor = TemperatureSensor(
-    sensor_id="TEMP_001",
-    location="Laboratory Room A",
-    base_temp=22.0,
-    daily_variation=3.0
+# Create manager and network
+manager = AdvancedDataCollectionManager()
+network = manager.create_network("my_network", "office")
+
+# Generate realistic sensor readings
+readings = network.read_all_sensors()
+print(f"Generated {len(readings)} sensor readings")
+
+# Create ML-ready dataset
+ml_data = network.generate_ml_dataset(
+    duration_days=30,
+    interval_minutes=15,
+    include_features=True
 )
-
-# Get a single reading
-reading = temp_sensor.read_value()
-print(f"Temperature: {reading['value']}°C")
-
-# Create a sensor network
-network = SensorNetwork("lab_network")
-network.add_sensor(temp_sensor)
-
-# Generate time series data
-df = network.generate_time_series(
-    duration_hours=24,
-    interval_seconds=300  # 5 minutes
-)
-
-# Export data
-network.export_data("sensor_data.csv", format="csv")
+print(f"ML dataset shape: {ml_data.shape}")
 ```
 
-### 3. Run Demonstration
-
-```bash
-python demo_sensor_data.py
-```
-
-## Sensor Features
-
-### Temperature Sensor
-- **Base temperature**: Configurable baseline temperature
-- **Seasonal variation**: Annual temperature cycles
-- **Daily variation**: 24-hour temperature patterns
-- **Noise simulation**: Realistic measurement uncertainty
-- **Range limiting**: Configurable min/max temperatures
-
-### Humidity Sensor
-- **Base humidity**: Configurable baseline humidity percentage
-- **Daily variation**: Humidity changes during day/night cycles
-- **Range limiting**: 0-100% humidity with configurable bounds
-- **Realistic patterns**: Higher humidity in early morning
-
-### Pressure Sensor
-- **Base pressure**: Standard atmospheric pressure baseline
-- **Weather simulation**: Slow pressure changes simulating weather systems
-- **Trend tracking**: Persistent weather pattern simulation
-- **Range limiting**: Realistic atmospheric pressure bounds
-
-## Data Export Formats
-
-- **CSV**: Standard comma-separated values
-- **JSON**: JavaScript Object Notation
-- **Parquet**: High-performance columnar format (optional)
-
-## Environment Presets
-
-### Laboratory Environment
-- Controlled temperature variations (±2°C daily)
-- Moderate humidity (45% ±8%)
-- Stable pressure (minimal weather effects)
-- Low noise levels
-
-### Outdoor Environment  
-- Large temperature variations (±8°C daily, ±12°C seasonal)
-- Variable humidity (60% ±20%)
-- Full weather pressure variations
-- Higher noise levels
-
-### Industrial Environment
-- Elevated baseline temperature (35°C)
-- Controlled humidity (40% ±10%)
-- Moderate pressure variations
-- Medium noise levels
-
-## Time Series Generation
-
-Generate realistic time series data with:
-- Configurable duration (minutes to weeks)
-- Flexible sampling intervals
-- Multiple sensors simultaneously
-- Synchronized timestamps
-- Pandas DataFrame output
-
-## Testing
-
-Run unit tests to validate functionality:
-
-```bash
-python test_sensors.py
-```
-
-Tests cover:
-- Sensor initialization and configuration
-- Reading generation and validation
-- Value range compliance
-- Time series generation
-- Network management
-- Data export functionality
-
-## Advanced Features
-
-### Custom Sensor Types
-Extend `BaseSensor` to create custom sensor types:
+### Environment Presets
 
 ```python
-class CustomSensor(BaseSensor):
-    def read_value(self, timestamp=None):
-        # Implement custom sensor logic
-        return {
-            'timestamp': timestamp.isoformat(),
-            'sensor_id': self.sensor_id,
-            'sensor_type': 'custom',
-            'value': custom_calculation(),
-            'unit': 'custom_unit',
-            'location': self.location
-        }
+from enhanced_config import config_manager
+
+# List available presets
+presets = config_manager.list_presets()
+print(f"Available environments: {presets}")
+
+# Create networks for different environments
+office_net = manager.create_network("office", "office")
+outdoor_net = manager.create_network("weather", "outdoor")
+industrial_net = manager.create_network("factory", "industrial")
 ```
 
-### Network Monitoring
-- Real-time sensor status tracking
-- Data buffer management
-- Network health monitoring
-- Configurable sampling rates per sensor
+### Advanced Features
 
-### Data Pipeline Integration
-- Designed for integration with ML model training
-- Compatible with cloud upload utilities
-- Structured for time series forecasting
-- Ready for real-time streaming applications
+```python
+# Generate comparative dataset across environments
+comparative_data = manager.generate_comparative_dataset(
+    duration_days=90,
+    interval_minutes=15
+)
 
-## Future Enhancements
+# Export ML-ready data
+network.export_ml_data(
+    filepath="data/training_data.parquet",
+    duration_days=365,
+    interval_minutes=15,
+    format='parquet'
+)
+```
 
-- **Cloud integration**: Direct upload to AWS, Azure, Google Cloud
-- **MQTT protocol**: Real-time data streaming
-- **Additional sensors**: Light, sound, vibration, gas sensors
-- **Fault simulation**: Sensor failure and anomaly injection
-- **Real device integration**: Bridge to actual Arduino/Raspberry Pi sensors
+## 📊 Generated Data Features
 
-## Files Structure
+### Sensor Readings
+- **Temperature**: Seasonal cycles, daily patterns, weather effects
+- **Humidity**: Inverse temperature correlation, morning peaks
+- **Pressure**: Weather system simulation, atmospheric patterns
+
+### ML Features
+- **Temporal**: Hour, day of week, seasonality, business hours
+- **Lag Features**: 1, 2, 3, 6, 12, 24, 48, 168-step lags
+- **Rolling Statistics**: Mean and standard deviation over multiple windows
+- **Quality Metrics**: Sensor health and reading confidence scores
+
+### Data Formats
+- **CSV**: Human-readable, universal compatibility
+- **Parquet**: Efficient storage, fast loading for ML
+- **JSON**: Structured data with metadata
+
+## 🔧 Configuration
+
+### Environment Presets
+
+| Preset | Description | Use Case |
+|--------|-------------|----------|
+| `office` | Indoor HVAC environment | Building automation |
+| `outdoor` | Weather station data | Environmental monitoring |
+| `industrial` | Manufacturing facility | Process control |
+
+### Customization
+
+```python
+from enhanced_config import SensorConfig, SeasonalParams, DailyParams
+
+# Create custom sensor configuration
+custom_config = SensorConfig(
+    base_value=25.0,
+    valid_range=(10.0, 50.0),
+    seasonal=SeasonalParams(amplitude=8.0),
+    daily=DailyParams(amplitude=5.0, peak_hour=15.0),
+    units="°C"
+)
+
+# Add to network
+network.add_custom_sensor("CUSTOM_TEMP_001", "temperature", custom_config)
+```
+
+## 🧪 Testing
+
+### Run Unit Tests
+```bash
+python -m pytest test_advanced_simulation.py -v
+```
+
+### Run Demonstrations
+```bash
+python demo_advanced_simulation.py
+```
+
+### Performance Testing
+```bash
+python -m pytest test_advanced_simulation.py::TestPerformance -v
+```
+
+## 📈 Data Quality
+
+### Realistic Patterns
+- **Seasonal**: Temperature varies ±12°C, humidity ±15%, pressure ±20hPa
+- **Daily**: Peak temperature at 2 PM, humidity at 6 AM
+- **Weather**: Storm systems, precipitation effects, pressure changes
+
+### Anomaly Simulation
+- **Spikes**: Sensor malfunction (2-5x normal values)
+- **Drops**: Sensor failure (0.1-0.5x normal values)
+- **Drift**: Calibration errors (gradual bias accumulation)
+- **Noise**: Interference (high-frequency disturbances)
+
+### Correlations
+- **Temperature-Humidity**: -0.6 correlation (higher temp → lower humidity)
+- **Pressure-Weather**: Weather systems affect pressure patterns
+- **Temporal**: Consistent daily and seasonal cycles
+
+## 📁 File Structure
 
 ```
 data-collection/
-├── sensor_simulator.py      # Core sensor simulation classes
-├── config.py               # Configuration and presets
-├── demo_sensor_data.py     # Demonstration script
-├── test_sensors.py         # Unit tests
-├── requirements.txt        # Python dependencies
-└── README.md              # This documentation
+├── advanced_patterns.py          # Weather and pattern simulation
+├── advanced_sensor_simulator.py  # Core simulation engine
+├── enhanced_config.py            # Configuration management
+├── demo_advanced_simulation.py   # Comprehensive demonstration
+├── test_advanced_simulation.py   # Unit tests
+├── requirements.txt              # Dependencies
+├── sensor_simulator.py           # Basic sensor classes
+├── demo_sensor_data.py           # Basic demonstration
+├── test_sensors.py               # Basic tests
+└── config.py                     # Basic configuration
 ```
 
-## Integration Points
+## 🔄 Data Pipeline Integration
 
-This module interfaces with other project components:
+### For ML Model Training
+```python
+# Generate training data
+train_data = network.generate_ml_dataset(
+    duration_days=365,
+    interval_minutes=15
+)
 
-- **`../ml-models/`** - Provides training data for forecasting models
-- **`../data/raw/`** - Stores generated sensor datasets
-- **`../cloud-dashboard/`** - Supplies real-time data for visualization
-- **`../edge-inference/`** - Provides test data for edge model validation
+# Split for ML pipeline
+train_size = int(0.7 * len(train_data))
+val_size = int(0.2 * len(train_data))
+
+train_set = train_data[:train_size]
+val_set = train_data[train_size:train_size+val_size]
+test_set = train_data[train_size+val_size:]
+```
+
+### For Real-time Simulation
+```python
+# Continuous data generation
+import time
+
+while True:
+    readings = network.read_all_sensors()
+    # Process readings...
+    time.sleep(60)  # 1-minute intervals
+```
+
+## 📋 Requirements
+
+### Core Dependencies
+- `numpy >= 1.21.0` - Numerical computations
+- `pandas >= 1.5.0` - Data manipulation
+- `matplotlib >= 3.5.0` - Visualization
+- `seaborn >= 0.11.0` - Statistical plotting
+- `scikit-learn >= 1.0.0` - ML utilities
+- `pyarrow >= 10.0.0` - Parquet support
+
+### Optional Dependencies
+- `jupyter` - Interactive development
+- `plotly` - Interactive visualizations
+- `pytest >= 6.0.0` - Testing framework
+
+## 🎯 Use Cases
+
+### 1. ML Model Development
+- **Time Series Forecasting**: LSTM, ARIMA, Prophet models
+- **Anomaly Detection**: Isolation Forest, One-Class SVM
+- **Classification**: Normal vs. abnormal sensor behavior
+- **Regression**: Predict future sensor values
+
+### 2. System Testing
+- **Edge Computing**: Test inference algorithms
+- **Dashboard Development**: Realistic data for UI testing
+- **Alert Systems**: Validate threshold-based alerts
+- **Data Pipeline**: Test ETL processes
+
+### 3. Research Applications
+- **Pattern Analysis**: Study sensor behavior patterns
+- **Correlation Studies**: Multi-sensor relationship analysis
+- **Robustness Testing**: System response to anomalies
+- **Comparative Studies**: Different environment behaviors
+
+## 🚧 Development Roadmap
+
+### Current Features ✅
+- [x] Advanced pattern simulation
+- [x] Multiple environment presets
+- [x] ML-ready dataset generation
+- [x] Comprehensive testing suite
+- [x] Data export capabilities
+
+### Next Steps 🔄
+- [ ] Real-time data streaming
+- [ ] Database integration
+- [ ] REST API endpoints
+- [ ] Cloud deployment support
+- [ ] Custom pattern designer UI
+
+## 📞 Support
+
+For questions, issues, or contributions:
+- **Author**: Udisha Dutta Chowdhury
+- **Supervisor**: Prof. Rolando Herrero
+- **Project**: Cyber-Physical Systems for Time-Series Analysis
+
+## 📄 License
+
+This project is developed as part of academic research under the supervision of Prof. Rolando Herrero.
+
+---
+
+**Next Phase**: The generated datasets from this module will be used to train time-series forecasting models using LSTM, ARIMA, and ensemble methods in the `ml-models/` module.
