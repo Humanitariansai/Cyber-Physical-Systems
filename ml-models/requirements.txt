@@ -1,0 +1,13 @@
+# Basic Time-Series Forecasting Requirements
+# Author: Udisha Dutta Chowdhury
+
+# Core ML libraries
+scikit-learn>=1.0.0
+numpy>=1.21.0
+pandas>=1.5.0
+
+# Visualization
+matplotlib>=3.5.0
+
+# Utilities
+joblib>=1.2.0
