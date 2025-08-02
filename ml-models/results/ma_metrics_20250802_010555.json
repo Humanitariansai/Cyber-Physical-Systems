@@ -1,0 +1,18 @@
+{
+  "timestamp": "20250802_010555",
+  "model_type": "SimpleMovingAverageForecaster",
+  "method": "wma",
+  "window": 5,
+  "alpha": null,
+  "target_column": "temperature",
+  "metrics": {
+    "mse": 1.956842220107176,
+    "mae": 1.1611769764057371,
+    "rmse": 1.3988717668561246,
+    "r2": 0.8548564266198773,
+    "n_samples": 134,
+    "method": "wma",
+    "window": 5,
+    "alpha": null
+  }
+}
