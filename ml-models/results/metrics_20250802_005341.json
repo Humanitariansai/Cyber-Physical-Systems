@@ -1,0 +1,13 @@
+{
+  "timestamp": "20250802_005341",
+  "model_type": "BasicTimeSeriesForecaster",
+  "n_lags": 6,
+  "target_column": "temperature",
+  "metrics": {
+    "mse": 1.3749453350715146,
+    "mae": 0.9501318067615425,
+    "rmse": 1.1725806305203557,
+    "r2": 0.8835586311001384,
+    "n_samples": 28
+  }
+}

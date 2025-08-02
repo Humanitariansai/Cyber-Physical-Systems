@@ -14,6 +14,8 @@ from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
 import sys
 import os
+from datetime import datetime
+import json
 
 # Add data-collection path for imports
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'data-collection'))
@@ -27,18 +29,23 @@ class BasicTimeSeriesForecaster:
     and uses linear regression to predict future values.
     """
     
-    def __init__(self, n_lags=5):
+    def __init__(self, n_lags=5, results_dir='results'):
         """
         Initialize the basic forecaster.
         
         Args:
             n_lags (int): Number of lag features to use for prediction
+            results_dir (str): Directory to store results
         """
         self.n_lags = n_lags
         self.model = LinearRegression()
         self.is_fitted = False
         self.feature_names = []
         self.target_col = None
+        self.results_dir = results_dir
+        
+        # Create results directory if it doesn't exist
+        os.makedirs(self.results_dir, exist_ok=True)
         
     def create_lag_features(self, data, target_col):
         """
@@ -168,7 +175,7 @@ class BasicTimeSeriesForecaster:
             'n_samples': len(y_test)
         }
     
-    def plot_predictions(self, data, n_steps=10, figsize=(12, 6)):
+    def plot_predictions(self, data, n_steps=10, figsize=(12, 6), save_plot=True):
         """
         Plot historical data with predictions.
         
@@ -176,6 +183,7 @@ class BasicTimeSeriesForecaster:
             data (pd.DataFrame): Historical data
             n_steps (int): Number of future steps to predict
             figsize (tuple): Figure size for the plot
+            save_plot (bool): Whether to save the plot to file
         """
         if not self.is_fitted:
             raise ValueError("Model must be fitted before plotting")
@@ -186,7 +194,7 @@ class BasicTimeSeriesForecaster:
         # Create time index for predictions
         if 'timestamp' in data.columns:
             last_time = pd.to_datetime(data['timestamp'].iloc[-1])
-            pred_times = pd.date_range(start=last_time, periods=n_steps+1, freq='H')[1:]
+            pred_times = pd.date_range(start=last_time, periods=n_steps+1, freq='h')[1:]
         else:
             pred_times = range(len(data), len(data) + n_steps)
         
@@ -210,8 +218,82 @@ class BasicTimeSeriesForecaster:
         plt.legend()
         plt.grid(True, alpha=0.3)
         plt.tight_layout()
+        
+        # Save plot if requested
+        if save_plot:
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            plot_file = os.path.join(self.results_dir, f'forecast_plot_{timestamp}.png')
+            plt.savefig(plot_file, dpi=300, bbox_inches='tight')
+            print(f"Plot saved to: {plot_file}")
+        
         plt.show()
-
+        return predictions
+    
+    def save_results(self, data, predictions, metrics, test_data=None):
+        """
+        Save forecasting results to files.
+        
+        Args:
+            data (pd.DataFrame): Historical data used for predictions
+            predictions (np.array): Array of predictions
+            metrics (dict): Performance metrics
+            test_data (pd.DataFrame, optional): Test data used for evaluation
+        """
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        
+        # Save predictions
+        pred_df = pd.DataFrame({
+            'step': range(1, len(predictions) + 1),
+            'prediction': predictions
+        })
+        pred_file = os.path.join(self.results_dir, f'predictions_{timestamp}.csv')
+        pred_df.to_csv(pred_file, index=False)
+        print(f"Predictions saved to: {pred_file}")
+        
+        # Save metrics
+        metrics_file = os.path.join(self.results_dir, f'metrics_{timestamp}.json')
+        metrics_with_meta = {
+            'timestamp': timestamp,
+            'model_type': 'BasicTimeSeriesForecaster',
+            'n_lags': self.n_lags,
+            'target_column': self.target_col,
+            'metrics': metrics
+        }
+        
+        with open(metrics_file, 'w') as f:
+            json.dump(metrics_with_meta, f, indent=2)
+        print(f"Metrics saved to: {metrics_file}")
+        
+        # Save historical data summary
+        data_summary = {
+            'data_points': len(data),
+            'date_range': {
+                'start': str(data.iloc[0]['timestamp']) if 'timestamp' in data.columns else 'N/A',
+                'end': str(data.iloc[-1]['timestamp']) if 'timestamp' in data.columns else 'N/A'
+            },
+            'target_stats': {
+                'mean': float(data[self.target_col].mean()),
+                'std': float(data[self.target_col].std()),
+                'min': float(data[self.target_col].min()),
+                'max': float(data[self.target_col].max())
+            }
+        }
+        
+        if test_data is not None:
+            data_summary['test_data_points'] = len(test_data)
+        
+        data_file = os.path.join(self.results_dir, f'data_summary_{timestamp}.json')
+        with open(data_file, 'w') as f:
+            json.dump(data_summary, f, indent=2)
+        print(f"Data summary saved to: {data_file}")
+        
+        return {
+            'predictions_file': pred_file,
+            'metrics_file': metrics_file,
+            'data_summary_file': data_file,
+            'timestamp': timestamp
+        }
+        
 
 def create_sample_data(n_points=100):
     """
@@ -226,7 +308,7 @@ def create_sample_data(n_points=100):
     np.random.seed(42)
     
     # Create timestamps
-    timestamps = pd.date_range('2024-01-01', periods=n_points, freq='H')
+    timestamps = pd.date_range('2024-01-01', periods=n_points, freq='h')
     
     # Generate synthetic temperature data with daily pattern
     time_hours = np.arange(n_points)
@@ -261,7 +343,7 @@ def demo_basic_forecasting():
     
     # Create and train forecaster
     print("3. Training forecaster...")
-    forecaster = BasicTimeSeriesForecaster(n_lags=6)
+    forecaster = BasicTimeSeriesForecaster(n_lags=6, results_dir='results')
     forecaster.fit(train_data, target_col='temperature')
     
     # Evaluate on test data
@@ -281,12 +363,21 @@ def demo_basic_forecasting():
     for i, pred in enumerate(future_predictions, 1):
         print(f"   - Hour {i}: {pred:.2f}°C")
     
+    # Save results
+    print("6. Saving results...")
+    saved_files = forecaster.save_results(train_data, future_predictions, metrics, test_data)
+    
     # Optional: Plot results (if matplotlib is available)
     try:
-        print("6. Plotting results...")
-        forecaster.plot_predictions(train_data, n_steps=10)
+        print("7. Plotting and saving visualization...")
+        forecaster.plot_predictions(train_data, n_steps=10, save_plot=True)
     except Exception as e:
         print(f"   Plotting skipped: {e}")
+    
+    print("\n📁 Files saved:")
+    for key, filepath in saved_files.items():
+        if key != 'timestamp':
+            print(f"   - {key}: {filepath}")
     
     return forecaster, data, metrics
 
