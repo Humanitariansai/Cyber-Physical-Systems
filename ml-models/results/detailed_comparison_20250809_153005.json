@@ -1,0 +1,67 @@
+{
+  "dataset_info": {
+    "total_points": 150,
+    "train_points": 112,
+    "test_points": 38,
+    "temperature_range": {
+      "min": 15.725102730042666,
+      "max": 28.764576190792447,
+      "mean": 22.0158969542938,
+      "std": 3.6047214400563328
+    }
+  },
+  "model_results": {
+    "SMA Moving Average": {
+      "metrics": {
+        "mse": 37.56199175579798,
+        "mae": 5.495132853558666,
+        "rmse": 6.128783872498523,
+        "r2": -1.847253990664023,
+        "n_samples": 38,
+        "method": "sma",
+        "window": 6,
+        "alpha": null
+      },
+      "model_type": "SMA Moving Average"
+    },
+    "EMA Moving Average": {
+      "metrics": {
+        "mse": 36.953888957866845,
+        "mae": 5.474751885689375,
+        "rmse": 6.078971044335287,
+        "r2": -1.8011589079165504,
+        "n_samples": 38,
+        "method": "ema",
+        "window": null,
+        "alpha": 0.3
+      },
+      "model_type": "EMA Moving Average"
+    },
+    "WMA Moving Average": {
+      "metrics": {
+        "mse": 41.23113803691258,
+        "mae": 5.805780197650852,
+        "rmse": 6.421147719599089,
+        "r2": -2.125380652827007,
+        "n_samples": 38,
+        "method": "wma",
+        "window": 6,
+        "alpha": null
+      },
+      "model_type": "WMA Moving Average"
+    },
+    "XGBoost": {
+      "metrics": {
+        "mse": 11.30205906140262,
+        "mae": 2.6633128956823495,
+        "rmse": 3.3618535157562444,
+        "r2": 0.1432873694635246,
+        "mape": 13.604259073061865,
+        "n_samples": 38,
+        "model": "XGBoost",
+        "n_features": 35
+      },
+      "model_type": "XGBoost with Feature Engineering"
+    }
+  }
+}

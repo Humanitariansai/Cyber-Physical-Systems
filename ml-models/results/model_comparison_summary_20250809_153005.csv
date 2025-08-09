@@ -1,0 +1,5 @@
+Model,RMSE (°C),MAE (°C),R²,MAPE (%),Type
+XGBoost,3.362,2.663,0.143,13.60,XGBoost with Feature Engineering
+EMA Moving Average,6.079,5.475,-1.801,0.00,EMA Moving Average
+SMA Moving Average,6.129,5.495,-1.847,0.00,SMA Moving Average
+WMA Moving Average,6.421,5.806,-2.125,0.00,WMA Moving Average
