@@ -17,6 +17,16 @@ import json
 import warnings
 warnings.filterwarnings('ignore')
 
+# MLflow imports for experiment tracking
+try:
+    from mlflow_tracking import ExperimentTracker, create_experiment_config
+    import mlflow
+    import mlflow.xgboost
+    MLFLOW_AVAILABLE = True
+except ImportError:
+    MLFLOW_AVAILABLE = False
+    print("MLflow not available. Experiment tracking disabled.")
+
 
 class XGBoostTimeSeriesForecaster:
     """
@@ -31,7 +41,7 @@ class XGBoostTimeSeriesForecaster:
     """
     
     def __init__(self, n_lags=12, rolling_windows=[3, 7, 12], 
-                 xgb_params=None, random_state=42):
+                 xgb_params=None, random_state=42, enable_mlflow=True):
         """
         Initialize XGBoost forecaster.
         
@@ -45,10 +55,15 @@ class XGBoostTimeSeriesForecaster:
             XGBoost parameters. If None, uses default parameters.
         random_state : int, default=42
             Random state for reproducibility
+        enable_mlflow : bool, default=True
+            Whether to enable MLflow experiment tracking
         """
         self.n_lags = n_lags
         self.rolling_windows = rolling_windows
         self.random_state = random_state
+        self.enable_mlflow = enable_mlflow and MLFLOW_AVAILABLE
+        self.mlflow_tracker = None
+        self.current_run_id = None
         
         # Default XGBoost parameters optimized for time series
         if xgb_params is None:
@@ -75,6 +90,15 @@ class XGBoostTimeSeriesForecaster:
         self.feature_names = []
         self.target_mean = 0
         self.target_std = 1
+        
+        # Initialize MLflow tracking if enabled
+        if self.enable_mlflow:
+            try:
+                self.mlflow_tracker = ExperimentTracker("xgboost-forecasting")
+                print("MLflow experiment tracking enabled for XGBoost")
+            except Exception as e:
+                print(f"Failed to initialize MLflow tracking: {e}")
+                self.enable_mlflow = False
         
     def _create_features(self, data, target_col, is_training=True):
         """
@@ -158,9 +182,9 @@ class XGBoostTimeSeriesForecaster:
         
         return features_df
     
-    def fit(self, data, target_col):
+    def fit(self, data, target_col, run_name=None):
         """
-        Fit the XGBoost model on the training data.
+        Fit the XGBoost model on the training data with MLflow tracking.
         
         Parameters:
         -----------
@@ -168,11 +192,37 @@ class XGBoostTimeSeriesForecaster:
             Training data
         target_col : str
             Name of the target column
+        run_name : str, optional
+            Name for the MLflow run
         """
         if target_col not in data.columns:
             raise ValueError(f"Target column '{target_col}' not found in data.")
         
         self.target_col = target_col
+        
+        # Start MLflow run if enabled
+        if self.enable_mlflow and self.mlflow_tracker:
+            if run_name is None:
+                run_name = f"xgboost_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+            
+            self.current_run_id = self.mlflow_tracker.start_run(
+                run_name=run_name,
+                model_type="xgboost",
+                tags={"algorithm": "xgboost", "task": "time_series_forecasting"}
+            )
+            
+            # Log model parameters
+            params = {
+                "n_lags": self.n_lags,
+                "rolling_windows": str(self.rolling_windows),
+                "target_column": target_col,
+                "data_points": len(data),
+                **self.xgb_params
+            }
+            self.mlflow_tracker.log_parameters(params)
+            
+            # Log dataset info
+            self.mlflow_tracker.log_dataset_info(data, "training_data")
         
         # Store target statistics for normalization
         self.target_mean = data[target_col].mean()
@@ -190,9 +240,32 @@ class XGBoostTimeSeriesForecaster:
         # Store feature names
         self.feature_names = features_df.columns.tolist()
         
+        # Log feature information to MLflow
+        if self.enable_mlflow and self.mlflow_tracker:
+            feature_info = {
+                "num_features": len(self.feature_names),
+                "feature_names": self.feature_names[:10],  # Log first 10 feature names
+                "total_features": len(self.feature_names)
+            }
+            self.mlflow_tracker.log_parameters(feature_info)
+        
         # Create and fit XGBoost model
         self.model = xgb.XGBRegressor(**self.xgb_params)
         self.model.fit(features_df.values, target_values)
+        
+        # Log model artifact if MLflow is enabled
+        if self.enable_mlflow and self.mlflow_tracker:
+            try:
+                # Create sample input for model signature
+                sample_input = features_df.head(1)
+                self.mlflow_tracker.log_model(
+                    self.model,
+                    "xgboost",
+                    input_example=sample_input.values
+                )
+            except Exception as e:
+                print(f"Failed to log XGBoost model to MLflow: {e}")
+        
         
         self.is_fitted = True
         print(f"XGBoost model fitted with {len(self.feature_names)} features on {len(features_df)} samples.")
@@ -268,9 +341,9 @@ class XGBoostTimeSeriesForecaster:
         
         return np.array(predictions)
     
-    def evaluate(self, data, predictions=None):
+    def evaluate(self, data, predictions=None, log_to_mlflow=True):
         """
-        Evaluate the model performance.
+        Evaluate the model performance with MLflow logging.
         
         Parameters:
         -----------
@@ -278,6 +351,8 @@ class XGBoostTimeSeriesForecaster:
             Test data
         predictions : np.array, optional
             Pre-computed predictions. If None, will generate predictions.
+        log_to_mlflow : bool, default=True
+            Whether to log metrics to MLflow
             
         Returns:
         --------
@@ -321,15 +396,32 @@ class XGBoostTimeSeriesForecaster:
         mape = np.mean(np.abs((actual - predictions) / (actual + 1e-8))) * 100
         
         metrics = {
-            'mse': mse,
-            'mae': mae,
-            'rmse': rmse,
-            'r2': r2,
-            'mape': mape,
-            'n_samples': len(actual),
-            'model': 'XGBoost',
-            'n_features': len(self.feature_names)
+            'mse': float(mse),
+            'mae': float(mae),
+            'rmse': float(rmse),
+            'r2': float(r2),
+            'mape': float(mape),
+            'n_samples': int(len(actual)),
+            'n_features': int(len(self.feature_names))
         }
+        
+        # Log metrics and prediction results to MLflow
+        if log_to_mlflow and self.enable_mlflow and self.mlflow_tracker:
+            try:
+                self.mlflow_tracker.log_metrics(metrics)
+                self.mlflow_tracker.log_prediction_results(actual, predictions, "test_")
+                
+                # Log feature importance if available
+                if hasattr(self.model, 'feature_importances_'):
+                    feature_importance = self.get_feature_importance(top_n=10)
+                    # Convert to metrics for MLflow
+                    importance_metrics = {}
+                    for i, (feature, importance) in enumerate(zip(feature_importance['feature'], feature_importance['importance'])):
+                        importance_metrics[f"feature_importance_{i+1}_{feature[:20]}"] = importance
+                    self.mlflow_tracker.log_metrics(importance_metrics)
+                    
+            except Exception as e:
+                print(f"Failed to log XGBoost metrics to MLflow: {e}")
         
         return metrics
     
@@ -356,6 +448,16 @@ class XGBoostTimeSeriesForecaster:
         }).sort_values('importance', ascending=False)
         
         return feature_df.head(top_n)
+    
+    def finish_mlflow_run(self):
+        """End the current MLflow run."""
+        if self.enable_mlflow and self.mlflow_tracker and self.current_run_id:
+            try:
+                self.mlflow_tracker.end_run()
+                print(f"XGBoost MLflow run {self.current_run_id} completed")
+                self.current_run_id = None
+            except Exception as e:
+                print(f"Error ending XGBoost MLflow run: {e}")
     
     def plot_feature_importance(self, top_n=15, figsize=(10, 8), save_path=None):
         """

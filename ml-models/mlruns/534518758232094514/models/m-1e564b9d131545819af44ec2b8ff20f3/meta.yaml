@@ -1,0 +1,11 @@
+artifact_location: file:C:/Users/udish/OneDrive/Documents/Udisha/Full time/Cyber-Physical
+  Systems/Cyber-Physical-Systems/ml-models/mlflow-artifacts/models/m-1e564b9d131545819af44ec2b8ff20f3/artifacts
+creation_timestamp: 1755813684302
+experiment_id: '534518758232094514'
+last_updated_timestamp: 1755813689248
+model_id: m-1e564b9d131545819af44ec2b8ff20f3
+model_type: null
+name: model
+source_run_id: 73ed2e677f4f4f45aa62b660d933103a
+status: 2
+status_message: null

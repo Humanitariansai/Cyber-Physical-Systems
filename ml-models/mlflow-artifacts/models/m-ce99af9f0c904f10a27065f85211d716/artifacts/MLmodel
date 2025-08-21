@@ -1,0 +1,33 @@
+artifact_path: file:C:/Users/udish/OneDrive/Documents/Udisha/Full time/Cyber-Physical
+  Systems/Cyber-Physical-Systems/ml-models/mlflow-artifacts/models/m-ce99af9f0c904f10a27065f85211d716/artifacts
+flavors:
+  python_function:
+    data: model.xgb
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.xgboost
+    python_version: 3.13.3
+  xgboost:
+    code: null
+    data: model.xgb
+    model_class: xgboost.sklearn.XGBRegressor
+    model_format: xgb
+    xgb_version: 3.0.4
+is_signature_from_type_hint: false
+mlflow_version: 3.3.1
+model_id: m-ce99af9f0c904f10a27065f85211d716
+model_size_bytes: 292658
+model_uuid: m-ce99af9f0c904f10a27065f85211d716
+prompts: null
+run_id: 43d8820d0a314a988d4a0cf99db8a11c
+saved_input_example_info:
+  artifact_path: input_example.json
+  serving_input_path: serving_input_example.json
+  type: ndarray
+signature:
+  inputs: '[{"type": "tensor", "tensor-spec": {"dtype": "float64", "shape": [-1, 43]}}]'
+  outputs: '[{"type": "tensor", "tensor-spec": {"dtype": "float32", "shape": [-1]}}]'
+  params: null
+type_hint_from_example: false
+utc_time_created: '2025-08-21 22:02:53.034207'

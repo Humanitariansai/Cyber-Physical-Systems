@@ -1,0 +1,23 @@
+artifact_path: file:C:/Users/udish/OneDrive/Documents/Udisha/Full time/Cyber-Physical
+  Systems/Cyber-Physical-Systems/ml-models/mlflow-artifacts/models/m-f78971212f17460bb0665d6e0ffa637b/artifacts
+flavors:
+  python_function:
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.sklearn
+    model_path: model.pkl
+    predict_fn: predict
+    python_version: 3.13.3
+  sklearn:
+    code: null
+    pickled_model: model.pkl
+    serialization_format: cloudpickle
+    sklearn_version: 1.7.1
+mlflow_version: 3.3.1
+model_id: m-f78971212f17460bb0665d6e0ffa637b
+model_size_bytes: 525873
+model_uuid: m-f78971212f17460bb0665d6e0ffa637b
+prompts: null
+run_id: 2ce582740d19422b95964884638efdfc
+utc_time_created: '2025-08-21 22:12:19.057791'

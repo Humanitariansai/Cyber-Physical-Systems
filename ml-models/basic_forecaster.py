@@ -20,6 +20,16 @@ import json
 # Add data-collection path for imports
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'data-collection'))
 
+# MLflow imports for experiment tracking
+try:
+    from mlflow_tracking import ExperimentTracker, create_experiment_config
+    import mlflow
+    import mlflow.sklearn
+    MLFLOW_AVAILABLE = True
+except ImportError:
+    MLFLOW_AVAILABLE = False
+    print("MLflow not available. Experiment tracking disabled.")
+
 
 class BasicTimeSeriesForecaster:
     """
@@ -29,13 +39,14 @@ class BasicTimeSeriesForecaster:
     and uses linear regression to predict future values.
     """
     
-    def __init__(self, n_lags=5, results_dir='results'):
+    def __init__(self, n_lags=5, results_dir='results', enable_mlflow=True):
         """
         Initialize the basic forecaster.
         
         Args:
             n_lags (int): Number of lag features to use for prediction
             results_dir (str): Directory to store results
+            enable_mlflow (bool): Whether to enable MLflow experiment tracking
         """
         self.n_lags = n_lags
         self.model = LinearRegression()
@@ -43,9 +54,21 @@ class BasicTimeSeriesForecaster:
         self.feature_names = []
         self.target_col = None
         self.results_dir = results_dir
+        self.enable_mlflow = enable_mlflow and MLFLOW_AVAILABLE
+        self.mlflow_tracker = None
+        self.current_run_id = None
         
         # Create results directory if it doesn't exist
         os.makedirs(self.results_dir, exist_ok=True)
+        
+        # Initialize MLflow tracking if enabled
+        if self.enable_mlflow:
+            try:
+                self.mlflow_tracker = ExperimentTracker("linear-regression-forecasting")
+                print("MLflow experiment tracking enabled")
+            except Exception as e:
+                print(f"Failed to initialize MLflow tracking: {e}")
+                self.enable_mlflow = False
         
     def create_lag_features(self, data, target_col):
         """
@@ -72,15 +95,39 @@ class BasicTimeSeriesForecaster:
         
         return df
     
-    def fit(self, data, target_col='value'):
+    def fit(self, data, target_col='value', run_name=None):
         """
-        Fit the forecasting model.
+        Fit the forecasting model with MLflow experiment tracking.
         
         Args:
             data (pd.DataFrame): Training data with time series
             target_col (str): Name of the column to forecast
+            run_name (str): Optional name for the MLflow run
         """
         self.target_col = target_col
+        
+        # Start MLflow run if enabled
+        if self.enable_mlflow and self.mlflow_tracker:
+            if run_name is None:
+                run_name = f"linear_regression_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+            
+            self.current_run_id = self.mlflow_tracker.start_run(
+                run_name=run_name,
+                model_type="linear_regression",
+                tags={"algorithm": "linear_regression", "task": "time_series_forecasting"}
+            )
+            
+            # Log model parameters
+            params = {
+                "n_lags": self.n_lags,
+                "model_type": "LinearRegression",
+                "target_column": target_col,
+                "data_points": len(data)
+            }
+            self.mlflow_tracker.log_parameters(params)
+            
+            # Log dataset info
+            self.mlflow_tracker.log_dataset_info(data, "training_data")
         
         # Create lag features
         df_with_lags = self.create_lag_features(data, target_col)
@@ -95,6 +142,19 @@ class BasicTimeSeriesForecaster:
         # Fit the model
         self.model.fit(X, y)
         self.is_fitted = True
+        
+        # Log model artifact if MLflow is enabled
+        if self.enable_mlflow and self.mlflow_tracker:
+            try:
+                # Create sample input for model signature
+                sample_input = X.head(1)
+                self.mlflow_tracker.log_model(
+                    self.model,
+                    "sklearn",
+                    input_example=sample_input.values
+                )
+            except Exception as e:
+                print(f"Failed to log model to MLflow: {e}")
         
         print(f"Model fitted with {len(X)} samples and {len(self.feature_names)} lag features")
         
@@ -136,12 +196,13 @@ class BasicTimeSeriesForecaster:
         
         return np.array(predictions)
     
-    def evaluate(self, data):
+    def evaluate(self, data, log_to_mlflow=True):
         """
-        Evaluate model performance on test data.
+        Evaluate model performance on test data with MLflow logging.
         
         Args:
             data (pd.DataFrame): Test data
+            log_to_mlflow (bool): Whether to log metrics to MLflow
             
         Returns:
             dict: Dictionary with evaluation metrics
@@ -167,13 +228,23 @@ class BasicTimeSeriesForecaster:
         rmse = np.sqrt(mse)
         r2 = r2_score(y_test, y_pred)
         
-        return {
+        metrics = {
             'mse': mse,
             'mae': mae,
             'rmse': rmse,
             'r2': r2,
             'n_samples': len(y_test)
         }
+        
+        # Log metrics and prediction results to MLflow
+        if log_to_mlflow and self.enable_mlflow and self.mlflow_tracker:
+            try:
+                self.mlflow_tracker.log_metrics(metrics)
+                self.mlflow_tracker.log_prediction_results(y_test.values, y_pred, "test_")
+            except Exception as e:
+                print(f"Failed to log metrics to MLflow: {e}")
+        
+        return metrics
     
     def plot_predictions(self, data, n_steps=10, figsize=(12, 6), save_plot=True):
         """
@@ -293,6 +364,16 @@ class BasicTimeSeriesForecaster:
             'data_summary_file': data_file,
             'timestamp': timestamp
         }
+    
+    def finish_mlflow_run(self):
+        """End the current MLflow run."""
+        if self.enable_mlflow and self.mlflow_tracker and self.current_run_id:
+            try:
+                self.mlflow_tracker.end_run()
+                print(f"MLflow run {self.current_run_id} completed")
+                self.current_run_id = None
+            except Exception as e:
+                print(f"Error ending MLflow run: {e}")
         
 
 def create_sample_data(n_points=100):
@@ -342,13 +423,13 @@ def demo_basic_forecasting():
     print(f"2. Split data: {len(train_data)} train, {len(test_data)} test samples")
     
     # Create and train forecaster
-    print("3. Training forecaster...")
-    forecaster = BasicTimeSeriesForecaster(n_lags=6, results_dir='results')
-    forecaster.fit(train_data, target_col='temperature')
+    print("3. Training forecaster with MLflow tracking...")
+    forecaster = BasicTimeSeriesForecaster(n_lags=6, results_dir='results', enable_mlflow=True)
+    forecaster.fit(train_data, target_col='temperature', run_name="basic_forecasting_demo")
     
     # Evaluate on test data
     print("4. Evaluating on test data...")
-    metrics = forecaster.evaluate(test_data)
+    metrics = forecaster.evaluate(test_data, log_to_mlflow=True)
     
     print("   Model Performance Metrics:")
     print(f"   - RMSE: {metrics['rmse']:.3f}")
@@ -373,6 +454,10 @@ def demo_basic_forecasting():
         forecaster.plot_predictions(train_data, n_steps=10, save_plot=True)
     except Exception as e:
         print(f"   Plotting skipped: {e}")
+    
+    # Finish MLflow run
+    print("8. Finalizing MLflow experiment tracking...")
+    forecaster.finish_mlflow_run()
     
     print("\n📁 Files saved:")
     for key, filepath in saved_files.items():
