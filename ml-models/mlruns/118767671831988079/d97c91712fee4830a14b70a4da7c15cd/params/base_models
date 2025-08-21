@@ -1,0 +1,1 @@
+[<basic_forecaster.BasicTimeSeriesForecaster object at 0x000001C95B678AD0>, <__main__.RandomForestForecaster object at 0x000001C95B63EC10>, <__main__.SVMForecaster object at 0x000001C95B55EFD0>]

@@ -1,0 +1,15 @@
+artifact_uri: file:C:/Users/udish/OneDrive/Documents/Udisha/Full time/Cyber-Physical
+  Systems/Cyber-Physical-Systems/ml-models/mlflow-artifacts/73ed2e677f4f4f45aa62b660d933103a/artifacts
+end_time: 1755813689869
+entry_point_name: ''
+experiment_id: '534518758232094514'
+lifecycle_stage: active
+run_id: 73ed2e677f4f4f45aa62b660d933103a
+run_name: xgboost_comprehensive
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1755813683146
+status: 3
+tags: []
+user_id: udish
