@@ -1,0 +1,11 @@
+artifact_location: file:C:/Users/udish/OneDrive/Documents/Udisha/Full time/Cyber-Physical
+  Systems/Cyber-Physical-Systems/mlruns/609472985162137764/models/m-a5d0f6294a0a4652b21593f2202908b2/artifacts
+creation_timestamp: 1757113800971
+experiment_id: '609472985162137764'
+last_updated_timestamp: 1757113811451
+model_id: m-a5d0f6294a0a4652b21593f2202908b2
+model_type: null
+name: best_model
+source_run_id: 294d60708c014aa99eb5d4a68988a8b3
+status: 2
+status_message: null

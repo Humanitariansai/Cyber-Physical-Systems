@@ -1,0 +1,15 @@
+artifact_uri: file:C:/Users/udish/OneDrive/Documents/Udisha/Full time/Cyber-Physical
+  Systems/Cyber-Physical-Systems/mlruns/609472985162137764/294d60708c014aa99eb5d4a68988a8b3/artifacts
+end_time: 1757113811475
+entry_point_name: ''
+experiment_id: '609472985162137764'
+lifecycle_stage: active
+run_id: 294d60708c014aa99eb5d4a68988a8b3
+run_name: BasicForecaster_Hyperparameter_Search
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1757113799248
+status: 3
+tags: []
+user_id: udish

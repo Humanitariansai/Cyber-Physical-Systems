@@ -1,0 +1,15 @@
+artifact_uri: file:C:/Users/udish/OneDrive/Documents/Udisha/Full time/Cyber-Physical
+  Systems/Cyber-Physical-Systems/mlruns/609472985162137764/927af90542aa492aabab597cc64b8a63/artifacts
+end_time: 1757113800343
+entry_point_name: ''
+experiment_id: '609472985162137764'
+lifecycle_stage: active
+run_id: 927af90542aa492aabab597cc64b8a63
+run_name: trial_lags_12
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1757113800098
+status: 3
+tags: []
+user_id: udish
