@@ -1,0 +1,15 @@
+artifact_uri: file:C:/Users/udish/OneDrive/Documents/Udisha/Full time/Cyber-Physical
+  Systems/Cyber-Physical-Systems/mlruns/196208315564420384/4167cecd6f3547a48a65bf703f557b33/artifacts
+end_time: 1756489118737
+entry_point_name: ''
+experiment_id: '196208315564420384'
+lifecycle_stage: active
+run_id: 4167cecd6f3547a48a65bf703f557b33
+run_name: BasicForecaster_Optimization
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1756489113814
+status: 3
+tags: []
+user_id: udish
