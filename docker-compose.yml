@@ -1,0 +1,136 @@
+version: '3.8'
+
+services:
+  # MLflow Tracking Server
+  mlflow-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cyber-physical-mlflow
+    ports:
+      - "5000:5000"
+    environment:
+      - MLFLOW_TRACKING_URI=file:///app/mlruns
+      - MLFLOW_DEFAULT_ARTIFACT_ROOT=/app/mlruns
+      - PYTHONPATH=/app:/app/ml-models:/app/data-collection
+    volumes:
+      - ./mlruns:/app/mlruns
+      - ./data:/app/data
+      - ./logs:/app/logs
+    networks:
+      - cyber-physical-net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Data Collection Service
+  data-collector:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cyber-physical-data-collector
+    environment:
+      - PYTHONPATH=/app:/app/ml-models:/app/data-collection
+      - DATA_OUTPUT_PATH=/app/data
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+    networks:
+      - cyber-physical-net
+    depends_on:
+      - mlflow-server
+    restart: unless-stopped
+    command: ["python", "data-collection/demo_sensor_data.py"]
+
+  # Model Training Service
+  model-trainer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cyber-physical-model-trainer
+    environment:
+      - MLFLOW_TRACKING_URI=http://mlflow-server:5000
+      - PYTHONPATH=/app:/app/ml-models:/app/data-collection
+    volumes:
+      - ./mlruns:/app/mlruns
+      - ./data:/app/data
+      - ./logs:/app/logs
+    networks:
+      - cyber-physical-net
+    depends_on:
+      - mlflow-server
+      - data-collector
+    restart: "no"  # Run once for training
+    command: ["python", "hyperparameter_tuning_demo.py"]
+
+  # Prediction API Service
+  prediction-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cyber-physical-prediction-api
+    ports:
+      - "8080:8080"
+    environment:
+      - MLFLOW_TRACKING_URI=http://mlflow-server:5000
+      - PYTHONPATH=/app:/app/ml-models:/app/data-collection
+    volumes:
+      - ./mlruns:/app/mlruns
+      - ./data:/app/data
+    networks:
+      - cyber-physical-net
+    depends_on:
+      - mlflow-server
+    restart: unless-stopped
+    command: ["python", "docker/prediction_api.py"]
+
+  # PostgreSQL Database (Optional - for production MLflow backend)
+  postgres:
+    image: postgres:13
+    container_name: cyber-physical-postgres
+    environment:
+      POSTGRES_DB: mlflow
+      POSTGRES_USER: mlflow
+      POSTGRES_PASSWORD: mlflow123
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - cyber-physical-net
+    restart: unless-stopped
+    profiles:
+      - production  # Only start with --profile production
+
+  # MLflow with PostgreSQL backend (Production setup)
+  mlflow-server-prod:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cyber-physical-mlflow-prod
+    ports:
+      - "5000:5000"
+    environment:
+      - MLFLOW_TRACKING_URI=postgresql://mlflow:mlflow123@postgres:5432/mlflow
+      - MLFLOW_DEFAULT_ARTIFACT_ROOT=/app/mlruns
+      - PYTHONPATH=/app:/app/ml-models:/app/data-collection
+    volumes:
+      - ./mlruns:/app/mlruns
+      - ./logs:/app/logs
+    networks:
+      - cyber-physical-net
+    depends_on:
+      - postgres
+    restart: unless-stopped
+    profiles:
+      - production
+    command: ["mlflow", "server", "--backend-store-uri", "postgresql://mlflow:mlflow123@postgres:5432/mlflow", "--default-artifact-root", "/app/mlruns", "--host", "0.0.0.0", "--port", "5000"]
+
+networks:
+  cyber-physical-net:
+    driver: bridge
+
+volumes:
+  postgres_data:
