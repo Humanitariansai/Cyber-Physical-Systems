@@ -125,7 +125,7 @@ def run_linear_regression_experiment(data, experiment_tracker):
     # Make predictions
     future_predictions = forecaster.predict(train_data, n_steps=5)
     
-    print(f"✅ Linear Regression Results:")
+    print(f" Linear Regression Results:")
     print(f"   - RMSE: {metrics['rmse']:.3f}")
     print(f"   - MAE:  {metrics['mae']:.3f}")
     print(f"   - R²:   {metrics['r2']:.3f}")
@@ -192,7 +192,7 @@ def run_xgboost_experiment(data, experiment_tracker):
     # Make predictions  
     future_predictions = forecaster.predict(n_steps=5, last_known_data=train_data)
     
-    print(f"✅ XGBoost Results:")
+    print(f" XGBoost Results:")
     print(f"   - RMSE: {metrics['rmse']:.3f}")
     print(f"   - MAE:  {metrics['mae']:.3f}")
     print(f"   - R²:   {metrics['r2']:.3f}")
@@ -249,7 +249,7 @@ def run_moving_average_experiment(data, experiment_tracker):
         forecaster.method = method
         metrics = forecaster.evaluate(test_data)
         results[method] = metrics
-        print(f"✅ {method.upper()} Results:")
+        print(f" {method.upper()} Results:")
         print(f"   - RMSE: {metrics['rmse']:.3f}")
         print(f"   - MAE:  {metrics['mae']:.3f}")
         print(f"   - R²:   {metrics['r2']:.3f}")
@@ -309,14 +309,14 @@ def compare_models(experiment_results):
     
     comparison_file = os.path.join(results_dir, f'model_comparison_{timestamp}.csv')
     comparison_df.to_csv(comparison_file, index=False)
-    print(f"\n📊 Comparison saved to: {comparison_file}")
+    print(f"\n Comparison saved to: {comparison_file}")
     
     return comparison_df
 
 
 def main():
     """Main experiment runner."""
-    print("🚀 STARTING MLFLOW FORECASTING EXPERIMENTS")
+    print(" STARTING MLFLOW FORECASTING EXPERIMENTS")
     print("=" * 60)
     
     if not MLFLOW_AVAILABLE:
@@ -324,7 +324,7 @@ def main():
         return
     
     # Create comprehensive dataset
-    print("📊 Creating comprehensive synthetic dataset...")
+    print(" Creating comprehensive synthetic dataset...")
     data = create_comprehensive_dataset(n_points=200, noise_level=0.15)
     print(f"   Generated {len(data)} data points")
     print(f"   Temperature range: {data['temperature'].min():.1f}°C to {data['temperature'].max():.1f}°C")
@@ -354,9 +354,9 @@ def main():
         # Print final summary
         print("\n🏆 EXPERIMENT SUMMARY")
         print("=" * 60)
-        print(f"✅ Successfully ran {len(experiment_results)} experiments")
+        print(f" Successfully ran {len(experiment_results)} experiments")
         print(f"🥇 Best model: {comparison_df.iloc[0]['Model']} (RMSE: {comparison_df.iloc[0]['RMSE']:.3f})")
-        print(f"📈 MLflow UI: Run 'mlflow ui' in the terminal to view detailed results")
+        print(f" MLflow UI: Run 'mlflow ui' in the terminal to view detailed results")
         print(f"🔗 MLflow tracking URI: {experiment_tracker.config.tracking_uri}")
         
     except Exception as e:
@@ -364,7 +364,7 @@ def main():
         import traceback
         traceback.print_exc()
     
-    print("\n🎯 Experiments completed!")
+    print("\n Experiments completed!")
 
 
 if __name__ == "__main__":

@@ -290,7 +290,7 @@ def run_mlflow_experiments_with_new_models():
     """
     Run MLflow experiments with different model types.
     """
-    print("🚀 RUNNING EXPERIMENTS WITH DIFFERENT MODEL TYPES")
+    print(" RUNNING EXPERIMENTS WITH DIFFERENT MODEL TYPES")
     print("=" * 60)
     
     # Create test data
@@ -304,7 +304,7 @@ def run_mlflow_experiments_with_new_models():
     train_data = data[:120]
     test_data = data[120:]
     
-    print(f"📊 Data: {len(train_data)} train, {len(test_data)} test samples")
+    print(f" Data: {len(train_data)} train, {len(test_data)} test samples")
     
     # Initialize MLflow tracker
     tracker = ExperimentTracker("advanced-forecasting-models")
@@ -366,7 +366,7 @@ def run_mlflow_experiments_with_new_models():
                 'Samples': metrics['n_samples']
             })
             
-            print(f"✅ {model_name} - RMSE: {metrics['rmse']:.3f}, MAE: {metrics['mae']:.3f}, R²: {metrics['r2']:.3f}")
+            print(f" {model_name} - RMSE: {metrics['rmse']:.3f}, MAE: {metrics['mae']:.3f}, R²: {metrics['r2']:.3f}")
             
         except Exception as e:
             print(f"❌ {model_name} failed: {e}")
@@ -384,7 +384,7 @@ def run_mlflow_experiments_with_new_models():
         # Save results
         results_df.to_csv(f'advanced_models_comparison_{datetime.now().strftime("%Y%m%d_%H%M%S")}.csv', index=False)
     
-    print(f"\n🎯 Experiments completed! View results at: http://localhost:5000")
+    print(f"\n Experiments completed! View results at: http://localhost:5000")
 
 
 def demonstrate_custom_model_logging():
@@ -491,7 +491,7 @@ def demonstrate_custom_model_logging():
     
     tracker.end_run()
     
-    print("✅ Custom polynomial model logged to MLflow")
+    print(" Custom polynomial model logged to MLflow")
     print(f"   RMSE: {metrics['rmse']:.3f}")
     print(f"   Coefficients: {model.coefficients}")
 
@@ -503,6 +503,6 @@ if __name__ == "__main__":
     # Demonstrate custom model logging
     demonstrate_custom_model_logging()
     
-    print(f"\n🎉 All experiments completed!")
-    print(f"💡 Start MLflow UI to view results: mlflow ui --port 5000")
+    print(f"\n All experiments completed!")
+    print(f" Start MLflow UI to view results: mlflow ui --port 5000")
     print(f"🔗 Access at: http://localhost:5000")

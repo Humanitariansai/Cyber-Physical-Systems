@@ -119,7 +119,7 @@ def hyperparameter_tuning_demo():
     """
     Demonstrate hyperparameter tuning with MLflow tracking
     """
-    print("🚀 Hyperparameter Tuning Demonstration with MLflow")
+    print(" Hyperparameter Tuning Demonstration with MLflow")
     print("=" * 60)
     
     # Set MLflow tracking
@@ -128,8 +128,8 @@ def hyperparameter_tuning_demo():
     
     # Generate demo data
     data = generate_demo_temperature_data(350)
-    print(f"📊 Generated {len(data)} data points for tuning")
-    print(f"📈 Temperature range: {data['temperature'].min():.2f}°C to {data['temperature'].max():.2f}°C")
+    print(f" Generated {len(data)} data points for tuning")
+    print(f" Temperature range: {data['temperature'].min():.2f}°C to {data['temperature'].max():.2f}°C")
     
     try:
         # Import the basic forecaster
@@ -138,7 +138,7 @@ def hyperparameter_tuning_demo():
         # Define hyperparameter grid to test
         lag_values = [3, 6, 9, 12, 15, 18]
         
-        print(f"\n🔍 Testing {len(lag_values)} different lag configurations...")
+        print(f"\n Testing {len(lag_values)} different lag configurations...")
         
         best_rmse = float('inf')
         best_params = {}
@@ -182,7 +182,7 @@ def hyperparameter_tuning_demo():
                         'r2': cv_results['mean_r2']
                     })
                     
-                    print(f"   ✅ RMSE: {cv_results['mean_rmse']:.4f} ± {cv_results['std_rmse']:.4f}")
+                    print(f"    RMSE: {cv_results['mean_rmse']:.4f} ± {cv_results['std_rmse']:.4f}")
             
             # Log best overall results
             mlflow.log_params(best_params)
@@ -191,7 +191,7 @@ def hyperparameter_tuning_demo():
             mlflow.log_param("optimization_method", "grid_search")
             
             print(f"\n" + "=" * 60)
-            print("📊 HYPERPARAMETER TUNING RESULTS")
+            print(" HYPERPARAMETER TUNING RESULTS")
             print("=" * 60)
             print(f"{'n_lags':<8} {'RMSE':<12} {'MAE':<12} {'R²':<8}")
             print("-" * 45)
@@ -243,15 +243,15 @@ def hyperparameter_tuning_demo():
             print(f"   Final Validation MAE: {final_mae:.4f}")
             print(f"   Final Validation R²: {final_r2:.4f}")
             
-        print(f"\n🌐 View detailed results at: http://127.0.0.1:5000")
-        print("📊 Look for the 'Hyperparameter_Tuning_Demo' experiment in MLflow!")
-        print("💡 You can compare all trials and see parameter vs. performance relationships!")
+        print(f"\n View detailed results at: http://127.0.0.1:5000")
+        print(" Look for the 'Hyperparameter_Tuning_Demo' experiment in MLflow!")
+        print(" You can compare all trials and see parameter vs. performance relationships!")
         
         return best_params, best_rmse
         
     except ImportError:
         print("❌ Could not import BasicTimeSeriesForecaster")
-        print("💡 Make sure you're in the correct directory with the ml-models folder")
+        print(" Make sure you're in the correct directory with the ml-models folder")
         return None, None
     except Exception as e:
         print(f"❌ Error during hyperparameter tuning: {e}")
@@ -263,10 +263,10 @@ if __name__ == "__main__":
     best_params, best_score = hyperparameter_tuning_demo()
     
     if best_params:
-        print(f"\n🎉 Hyperparameter tuning completed successfully!")
+        print(f"\n Hyperparameter tuning completed successfully!")
         print(f"🏆 Best parameters: {best_params}")
-        print(f"📈 Best performance: RMSE = {best_score:.4f}")
-        print(f"\n💡 Next steps:")
+        print(f" Best performance: RMSE = {best_score:.4f}")
+        print(f"\n Next steps:")
         print(f"   1. Check MLflow dashboard for detailed analysis")
         print(f"   2. Use best parameters in your production models")
         print(f"   3. Consider more advanced optimization algorithms (Bayesian, etc.)")

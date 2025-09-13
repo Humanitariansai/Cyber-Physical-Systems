@@ -201,7 +201,7 @@ class BasicForecasterOptimizer(HyperparameterOptimizer):
         """
         Run hyperparameter optimization for BasicTimeSeriesForecaster
         """
-        print(f"🔍 Starting BasicTimeSeriesForecaster optimization with {self.n_trials} trials...")
+        print(f"Starting BasicTimeSeriesForecaster optimization with {self.n_trials} trials...")
         
         # End any existing runs
         try:
@@ -231,8 +231,8 @@ class BasicForecasterOptimizer(HyperparameterOptimizer):
             mlflow.log_param("optimization_completed", True)
             mlflow.log_param("total_trials", self.n_trials)
             
-            print(f"✅ Best parameters: {best_params}")
-            print(f"✅ Best CV RMSE: {best_value:.4f}")
+            print(f"Best parameters: {best_params}")
+            print(f"Best CV RMSE: {best_value:.4f}")
             
             self.optimization_results['BasicForecaster'] = {
                 'best_params': best_params,
@@ -309,7 +309,7 @@ class XGBoostForecasterOptimizer(HyperparameterOptimizer):
         """
         Run hyperparameter optimization for XGBoostForecaster
         """
-        print(f"🔍 Starting XGBoostForecaster optimization with {self.n_trials} trials...")
+        print(f"Starting XGBoostForecaster optimization with {self.n_trials} trials...")
         
         # End any existing runs
         try:
@@ -337,8 +337,8 @@ class XGBoostForecasterOptimizer(HyperparameterOptimizer):
             mlflow.log_param("optimization_completed", True)
             mlflow.log_param("total_trials", self.n_trials)
             
-            print(f"✅ Best parameters: {best_params}")
-            print(f"✅ Best CV RMSE: {best_value:.4f}")
+            print(f"Best parameters: {best_params}")
+            print(f"Best CV RMSE: {best_value:.4f}")
             
             self.optimization_results['XGBoostForecaster'] = {
                 'best_params': best_params,
@@ -364,7 +364,7 @@ class MultiModelOptimizer:
         """
         Optimize all available models and compare results
         """
-        print("🚀 Starting Multi-Model Hyperparameter Optimization")
+        print("Starting Multi-Model Hyperparameter Optimization")
         print("=" * 60)
         
         # End any existing runs to avoid conflicts
@@ -402,7 +402,7 @@ class MultiModelOptimizer:
         Compare optimization results across models
         """
         print("\n" + "=" * 60)
-        print("📊 MODEL COMPARISON RESULTS")
+        print("MODEL COMPARISON RESULTS")
         print("=" * 60)
         
         comparison_data = []
@@ -436,7 +436,7 @@ class MultiModelOptimizer:
         return comparison_data
 
 if __name__ == "__main__":
-    print("🔧 Hyperparameter Optimization Framework Loaded")
+    print("Hyperparameter Optimization Framework Loaded")
     print("Available optimizers:")
     print("- BasicForecasterOptimizer")
     print("- XGBoostForecasterOptimizer") 

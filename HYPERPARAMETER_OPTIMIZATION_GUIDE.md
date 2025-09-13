@@ -4,7 +4,7 @@
 
 This guide explains how to use the automated hyperparameter optimization system integrated with MLflow for your cyber-physical systems temperature forecasting project.
 
-## 🎯 What This System Does
+##  What This System Does
 
 ### Automated Optimization
 - **Bayesian Optimization** using Optuna for intelligent parameter search
@@ -17,7 +17,7 @@ This guide explains how to use the automated hyperparameter optimization system 
 - **XGBoostForecaster**: Gradient boosting with advanced features
 - **Multi-Model Comparison**: Automatic comparison across model types
 
-## 🚀 Quick Start
+##  Quick Start
 
 ### 1. Basic Usage
 
@@ -59,7 +59,7 @@ for model_name, result in results.items():
     print(f"{model_name}: {result['best_params']} (RMSE: {result['best_score']:.4f})")
 ```
 
-## 🔧 Configuration Options
+##  Configuration Options
 
 ### Optimizer Parameters
 
@@ -89,7 +89,7 @@ for model_name, result in results.items():
 | `reg_alpha` | float | 0-10 | L1 regularization |
 | `reg_lambda` | float | 0-10 | L2 regularization |
 
-## 📊 MLflow Integration
+##  MLflow Integration
 
 ### Experiment Tracking
 Every optimization run is automatically tracked in MLflow with:
@@ -142,7 +142,7 @@ study = optuna.create_study(direction='minimize')
 study.optimize(objective, n_trials=100, n_jobs=4)  # 4 parallel workers
 ```
 
-## 📈 Performance Tips
+##  Performance Tips
 
 ### Data Preparation
 - **Ensure sufficient data**: At least 200-500 data points for reliable CV
@@ -166,7 +166,7 @@ study.optimize(objective, n_trials=100, n_jobs=4)  # 4 parallel workers
 - Balance `max_depth` to avoid overfitting
 - Regularization helps with noisy data
 
-## 🔍 Interpreting Results
+##  Interpreting Results
 
 ### Key Metrics
 - **CV RMSE**: Primary optimization metric (lower is better)
@@ -233,7 +233,7 @@ After hyperparameter optimization:
 4. **A/B Testing**: Compare optimized vs baseline models
 5. **Feature Engineering**: Optimize feature selection parameters
 
-## 🎉 Success Metrics
+##  Success Metrics
 
 Your optimization is successful when you achieve:
 - **Improved Performance**: 10-30% reduction in RMSE
@@ -251,4 +251,4 @@ For questions or issues:
 
 ---
 
-*Happy Optimizing! 🚀*
+*Happy Optimizing! *

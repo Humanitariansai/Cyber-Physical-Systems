@@ -4,7 +4,7 @@
 
 This guide explains how MLflow experiment tracking is integrated into your forecasting models and how to add new models effectively.
 
-## 🏗️ Architecture
+##  Architecture
 
 ```
 Your Forecasting System + MLflow
@@ -22,7 +22,7 @@ Your Forecasting System + MLflow
 └── Model Registry (versioned model storage)
 ```
 
-## 🔄 How It Works in Your Scenario
+##  How It Works in Your Scenario
 
 ### 1. **Experiment Organization**
 - **Experiments** group related runs (e.g., all Linear Regression variations)
@@ -34,10 +34,10 @@ Your Forecasting System + MLflow
 # Your models automatically log to MLflow
 forecaster = BasicTimeSeriesForecaster(n_lags=6, enable_mlflow=True)
 forecaster.fit(train_data, target_col='temperature', run_name='my_experiment')
-# ✅ Automatically logs: parameters, training data info, model artifact
+#  Automatically logs: parameters, training data info, model artifact
 
 metrics = forecaster.evaluate(test_data, log_to_mlflow=True) 
-# ✅ Automatically logs: metrics, prediction plots, performance charts
+#  Automatically logs: metrics, prediction plots, performance charts
 ```
 
 ### 3. **What Gets Tracked**
@@ -63,30 +63,30 @@ metrics = forecaster.evaluate(test_data, log_to_mlflow=True)
 - **Feature importance**: For tree-based models
 - **Data summaries**: Training/test data statistics
 
-## 📊 Current Model Integration
+##  Current Model Integration
 
 ### 1. **Linear Regression** (basic_forecaster.py)
 ```python
-# ✅ Fully integrated with MLflow
+#  Fully integrated with MLflow
 forecaster = BasicTimeSeriesForecaster(enable_mlflow=True)
 # Logs: lag features, linear regression parameters, sklearn model
 ```
 
 ### 2. **XGBoost** (xgboost_forecaster.py)  
 ```python
-# ✅ Fully integrated with MLflow
+#  Fully integrated with MLflow
 forecaster = XGBoostTimeSeriesForecaster(enable_mlflow=True)
 # Logs: 35+ engineered features, XGBoost parameters, feature importance
 ```
 
 ### 3. **Moving Averages** (simple_arima_forecaster.py)
 ```python
-# ⚠️ No MLflow integration (statistical method)
+# ⚠ No MLflow integration (statistical method)
 forecaster = SimpleMovingAverageForecaster()
 # Manual logging possible through MLflowModelManager
 ```
 
-## 🚀 Adding New Models - Step by Step
+##  Adding New Models - Step by Step
 
 ### Method 1: Direct Integration (Recommended)
 
@@ -163,7 +163,7 @@ result = manager.run_experiment(
 )
 ```
 
-## 🎯 Model Types Supported
+##  Model Types Supported
 
 ### 1. **Scikit-learn Models**
 ```python
@@ -203,7 +203,7 @@ mlflow_type="sklearn"  # Use as fallback
 # Manual artifact logging required
 ```
 
-## 🔍 Viewing Results
+##  Viewing Results
 
 ### 1. **Start MLflow UI**
 ```bash
@@ -227,7 +227,7 @@ runs_df = tracker.get_experiment_results()
 print(runs_df[['run_id', 'metrics.rmse', 'metrics.mae', 'params.n_lags']])
 ```
 
-## 📈 Best Practices
+##  Best Practices
 
 ### 1. **Experiment Naming**
 - Use descriptive names: `"temperature-forecasting-comparison"`
@@ -252,7 +252,7 @@ print(runs_df[['run_id', 'metrics.rmse', 'metrics.mae', 'params.n_lags']])
 - Save prediction plots for visual analysis
 - Store feature importance for interpretability
 
-## 🛠️ Practical Examples
+##  Practical Examples
 
 ### Example 1: Adding LSTM Model
 ```python
@@ -343,7 +343,7 @@ class EnsembleForecaster:
         tracker.end_run()
 ```
 
-## 🔧 Troubleshooting
+##  Troubleshooting
 
 ### Common Issues:
 
@@ -368,13 +368,13 @@ logging.getLogger("mlflow").setLevel(logging.DEBUG)
 4. **Analyze results**: Use MLflow UI for insights
 5. **Deploy best models**: Use MLflow Model Registry
 
-## 🎉 Summary
+##  Summary
 
 MLflow in your forecasting system provides:
-- ✅ **Automatic experiment tracking** for all model types
-- ✅ **Systematic comparison** of different approaches  
-- ✅ **Reproducible results** with parameter logging
-- ✅ **Visual analysis** with artifact storage
-- ✅ **Model versioning** and deployment support
+-  **Automatic experiment tracking** for all model types
+-  **Systematic comparison** of different approaches  
+-  **Reproducible results** with parameter logging
+-  **Visual analysis** with artifact storage
+-  **Model versioning** and deployment support
 
 Your forecasting models now have enterprise-grade experiment tracking!

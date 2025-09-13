@@ -24,7 +24,7 @@ def main():
     train_data = data[:80]
     test_data = data[80:]
     
-    print(f"✅ Data created: {len(train_data)} train, {len(test_data)} test")
+    print(f" Data created: {len(train_data)} train, {len(test_data)} test")
     
     # Test Basic Forecaster with MLflow
     print("🔬 Testing Basic Forecaster with MLflow...")
@@ -36,8 +36,8 @@ def main():
     
     forecaster.finish_mlflow_run()
     
-    print("✅ Test completed successfully!")
-    print("💡 Check MLflow UI with: mlflow ui")
+    print(" Test completed successfully!")
+    print(" Check MLflow UI with: mlflow ui")
 
 if __name__ == "__main__":
     main()

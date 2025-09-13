@@ -1,0 +1,87 @@
+# Docker-specific files
+Dockerfile
+docker-compose.yml
+docker-compose.override.yml
+.dockerignore
+
+# MLflow artifacts and metadata
+mlruns/
+mlflow-artifacts/
+
+# Logs
+logs/
+*.log
+
+# Data files
+data/*.csv
+data/*.parquet
+data/*.json
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+.pytest_cache/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# Documentation
+docs/
+README.md
+*.md
+
+# Test files
+test_*.py
+*_test.py
+tests/
+
+# Configuration files that might contain secrets
+.env
+.env.local
+.env.prod
+*.key
+*.pem
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Large model files (unless needed in container)
+*.pkl
+*.joblib
+*.h5
+*.onnx
+
+# Jupyter notebooks
+*.ipynb
+.ipynb_checkpoints/
+
+# Node modules (if any frontend)
+node_modules/
+
+# Windows specific
+Thumbs.db
+ehthumbs.db
+Desktop.ini
