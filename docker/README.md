@@ -1,17 +1,17 @@
 # Docker Implementation for Cyber-Physical Systems
 
-## 🐳 **Overview**
+## **Overview**
 
 This Docker implementation provides a containerized environment for the entire cyber-physical systems ML pipeline, including MLflow tracking, model training, and prediction API services.
 
-## 📋 **Prerequisites**
+## **Prerequisites**
 
 - Docker Desktop (Windows/Mac) or Docker Engine (Linux)
 - Docker Compose v2.0+
 - At least 4GB RAM available for containers
 - Internet connection for initial image building
 
-## 🚀 **Quick Start**
+## **Quick Start**
 
 ### 1. **Build and Start Development Environment**
 
@@ -34,7 +34,7 @@ chmod +x docker/manage.sh
 - **Prediction API**: http://localhost:8080
 - **API Health Check**: http://localhost:8080/health
 
-## 🏗️ **Architecture**
+## **Architecture**
 
 ### **Services Overview**
 
@@ -63,7 +63,7 @@ chmod +x docker/manage.sh
 | Prediction API | `cyber-physical-prediction-api` | 8080 | Serve model predictions via REST API |
 | PostgreSQL | `cyber-physical-postgres` | 5432 | Production database (optional) |
 
-## 📖 **Usage Instructions**
+## **Usage Instructions**
 
 ### **Development Workflow**
 
@@ -103,7 +103,7 @@ chmod +x docker/manage.sh
    export POSTGRES_PASSWORD=your_secure_password
    ```
 
-## 🔧 **Configuration**
+##  **Configuration**
 
 ### **Environment Variables**
 
@@ -172,7 +172,7 @@ curl -X POST http://localhost:8080/predict \
 curl -X POST http://localhost:8080/model/reload
 ```
 
-## 🛠️ **Management Commands**
+##  **Management Commands**
 
 ### **Windows (manage.bat)**
 ```cmd
@@ -198,7 +198,7 @@ docker\manage.bat backup       # Create backup
 ./docker/manage.sh backup      # Create backup
 ```
 
-## 🔒 **Security Considerations**
+##  **Security Considerations**
 
 ### **Development Environment**
 - Uses file-based MLflow storage
@@ -214,7 +214,7 @@ docker\manage.bat backup       # Create backup
 - Consider adding SSL/TLS certificates
 - Implement API authentication
 
-## 📊 **Monitoring & Logs**
+##  **Monitoring & Logs**
 
 ### **Log Locations**
 - MLflow Server: `docker-compose logs mlflow-server`
@@ -258,7 +258,7 @@ docker\manage.bat backup       # Create backup
 ./docker/manage.sh clean   # Removes all containers and images
 ```
 
-## 🔄 **Development Workflow**
+##  **Development Workflow**
 
 1. **Code Changes:** Make changes to Python files
 2. **Rebuild:** `./docker/manage.sh build`
@@ -266,7 +266,7 @@ docker\manage.bat backup       # Create backup
 4. **Test:** Access MLflow and API endpoints
 5. **Monitor:** `./docker/manage.sh logs`
 
-## 📈 **Performance Optimization**
+##  **Performance Optimization**
 
 ### **Resource Limits**
 Add to `docker-compose.yml`:
@@ -293,4 +293,4 @@ deploy:
 
 ---
 
-**Your cyber-physical systems project is now fully containerized and ready for development and production deployment!** 🚀
+**Your cyber-physical systems project is now fully containerized and ready for development and production deployment!** 

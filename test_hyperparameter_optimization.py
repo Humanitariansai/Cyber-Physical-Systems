@@ -43,8 +43,8 @@ def test_basic_optimization():
     
     # Generate test data
     data = generate_test_data(300)
-    print(f"📊 Generated {len(data)} test data points")
-    print(f"📈 Temperature range: {data['temperature'].min():.2f} to {data['temperature'].max():.2f}")
+    print(f" Generated {len(data)} test data points")
+    print(f" Temperature range: {data['temperature'].min():.2f} to {data['temperature'].max():.2f}")
     
     # Create optimizer with small number of trials for testing
     optimizer = BasicForecasterOptimizer(
@@ -55,24 +55,24 @@ def test_basic_optimization():
     
     try:
         # Run optimization
-        print("\n🔍 Starting optimization...")
+        print("\n Starting optimization...")
         study = optimizer.optimize(data, target_col='temperature')
         
-        print(f"\n✅ Optimization completed successfully!")
+        print(f"\n Optimization completed successfully!")
         print(f"🏆 Best parameters: {study.best_params}")
-        print(f"📊 Best CV RMSE: {study.best_value:.4f}")
+        print(f" Best CV RMSE: {study.best_value:.4f}")
         print(f"🔢 Total trials completed: {len(study.trials)}")
         
         # Show parameter importance if available
         if len(study.trials) > 1:
             try:
                 importances = optuna.importance.get_param_importances(study)
-                print(f"📈 Parameter importances: {importances}")
+                print(f" Parameter importances: {importances}")
             except:
                 pass
         
-        print(f"\n🌐 View detailed results at: http://127.0.0.1:5000")
-        print("💡 Look for the 'Test_BasicForecaster_HPO' experiment in MLflow!")
+        print(f"\n View detailed results at: http://127.0.0.1:5000")
+        print(" Look for the 'Test_BasicForecaster_HPO' experiment in MLflow!")
         
         return study
         
@@ -89,7 +89,7 @@ if __name__ == "__main__":
     study = test_basic_optimization()
     
     if study:
-        print("\n🎉 Hyperparameter optimization test completed successfully!")
-        print("🚀 You're ready to use the full optimization system!")
+        print("\n Hyperparameter optimization test completed successfully!")
+        print(" You're ready to use the full optimization system!")
     else:
         print("\n❌ Test failed. Please check the error messages above.")

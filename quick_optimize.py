@@ -54,47 +54,47 @@ def quick_optimize(model_type='all', data_file=None, n_trials=30, target_col='te
         MultiModelOptimizer
     )
     
-    print("🚀 Quick Hyperparameter Optimization")
+    print(" Quick Hyperparameter Optimization")
     print("=" * 50)
     
     # Load or generate data
     if data_file and Path(data_file).exists():
-        print(f"📊 Loading data from {data_file}")
+        print(f" Loading data from {data_file}")
         data = pd.read_csv(data_file)
         if 'timestamp' in data.columns:
             data['timestamp'] = pd.to_datetime(data['timestamp'])
     else:
-        print("📊 Generating sample temperature data")
+        print(" Generating sample temperature data")
         data = generate_sample_data()
     
-    print(f"📈 Data shape: {data.shape}")
-    print(f"🎯 Target column: {target_col}")
+    print(f" Data shape: {data.shape}")
+    print(f" Target column: {target_col}")
     print(f"🔢 Optimization trials: {n_trials}")
     
     if model_type.lower() == 'basic':
-        print("\n🔍 Optimizing BasicTimeSeriesForecaster...")
+        print("\n Optimizing BasicTimeSeriesForecaster...")
         optimizer = BasicForecasterOptimizer(
             experiment_name="Quick_BasicForecaster_HPO",
             n_trials=n_trials,
             cv_folds=3
         )
         study = optimizer.optimize(data, target_col=target_col)
-        print(f"✅ Best parameters: {study.best_params}")
-        print(f"📊 Best CV RMSE: {study.best_value:.4f}")
+        print(f" Best parameters: {study.best_params}")
+        print(f" Best CV RMSE: {study.best_value:.4f}")
         
     elif model_type.lower() == 'xgboost':
-        print("\n🚀 Optimizing XGBoostForecaster...")
+        print("\n Optimizing XGBoostForecaster...")
         optimizer = XGBoostForecasterOptimizer(
             experiment_name="Quick_XGBoostForecaster_HPO",
             n_trials=n_trials,
             cv_folds=3
         )
         study = optimizer.optimize(data, target_col=target_col)
-        print(f"✅ Best parameters: {study.best_params}")
-        print(f"📊 Best CV RMSE: {study.best_value:.4f}")
+        print(f" Best parameters: {study.best_params}")
+        print(f" Best CV RMSE: {study.best_value:.4f}")
         
     elif model_type.lower() == 'all':
-        print("\n🎯 Optimizing All Models...")
+        print("\n Optimizing All Models...")
         optimizer = MultiModelOptimizer(
             tracking_uri="./mlruns",
             n_trials=n_trials
@@ -110,8 +110,8 @@ def quick_optimize(model_type='all', data_file=None, n_trials=30, target_col='te
         print("   Available options: 'basic', 'xgboost', 'all'")
         return
     
-    print(f"\n🌐 View results at: http://127.0.0.1:5000")
-    print("💡 Check the MLflow dashboard for detailed analysis!")
+    print(f"\n View results at: http://127.0.0.1:5000")
+    print(" Check the MLflow dashboard for detailed analysis!")
 
 def main():
     parser = argparse.ArgumentParser(description='Quick Hyperparameter Optimization')
@@ -135,14 +135,14 @@ def main():
         )
     except Exception as e:
         print(f"❌ Optimization failed: {e}")
-        print("💡 Make sure MLflow is running and your models are available")
+        print(" Make sure MLflow is running and your models are available")
         import traceback
         traceback.print_exc()
 
 if __name__ == "__main__":
     # Example usage if run directly
     if len(sys.argv) == 1:
-        print("🎯 Running quick optimization demo...")
+        print(" Running quick optimization demo...")
         quick_optimize(model_type='all', n_trials=15)
     else:
         main()

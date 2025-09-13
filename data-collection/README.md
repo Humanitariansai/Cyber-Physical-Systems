@@ -5,7 +5,7 @@
 
 This module provides advanced sensor data simulation capabilities for cyber-physical systems, including realistic patterns, correlations, anomalies, and ML-ready data generation.
 
-## 📋 Overview
+##  Overview
 
 The data collection module simulates realistic sensor data with:
 - **Seasonal and daily variations** based on physical phenomena
@@ -14,7 +14,7 @@ The data collection module simulates realistic sensor data with:
 - **Configurable anomalies** for robustness testing
 - **ML-ready datasets** with engineered features
 
-## 🏗️ Architecture
+##  Architecture
 
 ### Core Components
 
@@ -37,7 +37,7 @@ The data collection module simulates realistic sensor data with:
    - `demo_advanced_simulation.py` - Comprehensive showcase
    - `demo_sensor_data.py` - Basic simulation demo
 
-## 🚀 Quick Start
+##  Quick Start
 
 ### Basic Usage
 
@@ -94,7 +94,7 @@ network.export_ml_data(
 )
 ```
 
-## 📊 Generated Data Features
+##  Generated Data Features
 
 ### Sensor Readings
 - **Temperature**: Seasonal cycles, daily patterns, weather effects
@@ -112,7 +112,7 @@ network.export_ml_data(
 - **Parquet**: Efficient storage, fast loading for ML
 - **JSON**: Structured data with metadata
 
-## 🔧 Configuration
+##  Configuration
 
 ### Environment Presets
 
@@ -157,7 +157,7 @@ python demo_advanced_simulation.py
 python -m pytest test_advanced_simulation.py::TestPerformance -v
 ```
 
-## 📈 Data Quality
+##  Data Quality
 
 ### Realistic Patterns
 - **Seasonal**: Temperature varies ±12°C, humidity ±15%, pressure ±20hPa
@@ -191,7 +191,7 @@ data-collection/
 └── config.py                     # Basic configuration
 ```
 
-## 🔄 Data Pipeline Integration
+##  Data Pipeline Integration
 
 ### For ML Model Training
 ```python
@@ -221,7 +221,7 @@ while True:
     time.sleep(60)  # 1-minute intervals
 ```
 
-## 📋 Requirements
+##  Requirements
 
 ### Core Dependencies
 - `numpy >= 1.21.0` - Numerical computations
@@ -236,7 +236,7 @@ while True:
 - `plotly` - Interactive visualizations
 - `pytest >= 6.0.0` - Testing framework
 
-## 🎯 Use Cases
+##  Use Cases
 
 ### 1. ML Model Development
 - **Time Series Forecasting**: LSTM, ARIMA, Prophet models
@@ -258,14 +258,14 @@ while True:
 
 ## 🚧 Development Roadmap
 
-### Current Features ✅
+### Current Features 
 - [x] Advanced pattern simulation
 - [x] Multiple environment presets
 - [x] ML-ready dataset generation
 - [x] Comprehensive testing suite
 - [x] Data export capabilities
 
-### Next Steps 🔄
+### Next Steps 
 - [ ] Real-time data streaming
 - [ ] Database integration
 - [ ] REST API endpoints

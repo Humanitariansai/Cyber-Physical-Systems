@@ -69,12 +69,12 @@ def demo_basic_forecaster_optimization():
     """
     Demonstrate BasicTimeSeriesForecaster hyperparameter optimization
     """
-    print("🔍 DEMO: BasicTimeSeriesForecaster Hyperparameter Optimization")
+    print(" DEMO: BasicTimeSeriesForecaster Hyperparameter Optimization")
     print("=" * 70)
     
     # Generate data
     data = generate_realistic_temperature_data(400)
-    print(f"📊 Generated {len(data)} data points for optimization")
+    print(f" Generated {len(data)} data points for optimization")
     
     # Create optimizer
     optimizer = BasicForecasterOptimizer(
@@ -86,9 +86,9 @@ def demo_basic_forecaster_optimization():
     # Run optimization
     study = optimizer.optimize(data, target_col='temperature')
     
-    print(f"\n✅ Optimization completed!")
+    print(f"\n Optimization completed!")
     print(f"🏆 Best parameters: {study.best_params}")
-    print(f"📈 Best CV RMSE: {study.best_value:.4f}")
+    print(f" Best CV RMSE: {study.best_value:.4f}")
     
     return study
 
@@ -96,12 +96,12 @@ def demo_xgboost_optimization():
     """
     Demonstrate XGBoostForecaster hyperparameter optimization
     """
-    print("\n🚀 DEMO: XGBoostForecaster Hyperparameter Optimization")
+    print("\n DEMO: XGBoostForecaster Hyperparameter Optimization")
     print("=" * 70)
     
     # Generate data
     data = generate_realistic_temperature_data(400)
-    print(f"📊 Generated {len(data)} data points for optimization")
+    print(f" Generated {len(data)} data points for optimization")
     
     # Create optimizer
     optimizer = XGBoostForecasterOptimizer(
@@ -113,9 +113,9 @@ def demo_xgboost_optimization():
     # Run optimization
     study = optimizer.optimize(data, target_col='temperature')
     
-    print(f"\n✅ Optimization completed!")
+    print(f"\n Optimization completed!")
     print(f"🏆 Best parameters: {study.best_params}")
-    print(f"📈 Best CV RMSE: {study.best_value:.4f}")
+    print(f" Best CV RMSE: {study.best_value:.4f}")
     
     return study
 
@@ -123,12 +123,12 @@ def demo_multi_model_optimization():
     """
     Demonstrate multi-model optimization and comparison
     """
-    print("\n🎯 DEMO: Multi-Model Hyperparameter Optimization")
+    print("\n DEMO: Multi-Model Hyperparameter Optimization")
     print("=" * 70)
     
     # Generate data
     data = generate_realistic_temperature_data(400)
-    print(f"📊 Generated {len(data)} data points for optimization")
+    print(f" Generated {len(data)} data points for optimization")
     
     # Create multi-model optimizer
     multi_optimizer = MultiModelOptimizer(
@@ -139,7 +139,7 @@ def demo_multi_model_optimization():
     # Run optimization for all models
     results = multi_optimizer.optimize_all_models(data, target_col='temperature')
     
-    print(f"\n✅ Multi-model optimization completed!")
+    print(f"\n Multi-model optimization completed!")
     
     return results
 
@@ -200,7 +200,7 @@ def demo_grid_search_alternative():
                         'rmse': rmse
                     })
                     
-                    print(f"✅ Grid point {param_dict}: RMSE = {rmse:.4f}")
+                    print(f" Grid point {param_dict}: RMSE = {rmse:.4f}")
                     
             except Exception as e:
                 print(f"❌ Error with params {param_dict}: {e}")
@@ -212,7 +212,7 @@ def demo_grid_search_alternative():
     return results
 
 if __name__ == "__main__":
-    print("🎯 Starting Hyperparameter Optimization Demonstration")
+    print(" Starting Hyperparameter Optimization Demonstration")
     print("=" * 80)
     print("This demo will show you how to:")
     print("1. Optimize BasicTimeSeriesForecaster hyperparameters")
@@ -235,18 +235,18 @@ if __name__ == "__main__":
         grid_results = demo_grid_search_alternative()
         
         print("\n" + "=" * 80)
-        print("🎉 ALL DEMOS COMPLETED SUCCESSFULLY!")
+        print(" ALL DEMOS COMPLETED SUCCESSFULLY!")
         print("=" * 80)
-        print("📊 Check your MLflow dashboard at http://127.0.0.1:5000")
-        print("🔍 Look for these experiments:")
+        print(" Check your MLflow dashboard at http://127.0.0.1:5000")
+        print(" Look for these experiments:")
         print("   - BasicForecaster_Demo_HPO")
         print("   - XGBoostForecaster_Demo_HPO")
         print("   - hyperparameter-optimization")
         print("   - Grid_Search_Demo")
-        print("\n💡 You can now use these optimized parameters in your models!")
+        print("\n You can now use these optimized parameters in your models!")
         
     except Exception as e:
         print(f"❌ Demo failed with error: {e}")
-        print("💡 Make sure your models are available and MLflow is running")
+        print(" Make sure your models are available and MLflow is running")
         import traceback
         traceback.print_exc()

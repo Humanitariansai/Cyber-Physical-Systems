@@ -15,7 +15,7 @@ def test_mlflow_server():
     try:
         response = requests.get("http://localhost:5000", timeout=10)
         if response.status_code == 200:
-            print("✅ MLflow Server: PASSED")
+            print(" MLflow Server: PASSED")
             return True
         else:
             print(f"❌ MLflow Server: FAILED (Status: {response.status_code})")
@@ -30,7 +30,7 @@ def test_prediction_api_health():
         response = requests.get("http://localhost:8080/health", timeout=10)
         if response.status_code == 200:
             data = response.json()
-            print("✅ Prediction API Health: PASSED")
+            print(" Prediction API Health: PASSED")
             print(f"   Model Loaded: {data.get('model_loaded', False)}")
             return True
         else:
@@ -60,7 +60,7 @@ def test_prediction_api_predict():
             
             # Basic validation
             if isinstance(predicted_temp, (int, float)) and 15 <= predicted_temp <= 35:
-                print("✅ Prediction API Predict: PASSED")
+                print(" Prediction API Predict: PASSED")
                 print(f"   Predicted Temperature: {predicted_temp}°C")
                 print(f"   Model Used: {data.get('model_used', 'unknown')}")
                 return True
@@ -81,7 +81,7 @@ def test_prediction_api_root():
         if response.status_code == 200:
             data = response.json()
             if 'service' in data and 'Cyber-Physical' in data['service']:
-                print("✅ Prediction API Root: PASSED")
+                print(" Prediction API Root: PASSED")
                 return True
             else:
                 print("❌ Prediction API Root: FAILED (Invalid response)")
@@ -98,7 +98,7 @@ def main():
     print("🧪 Docker Implementation Test Suite")
     print("=" * 50)
     
-    print("\n📋 Testing Services...")
+    print("\n Testing Services...")
     
     # Wait for services to be ready
     print("⏳ Waiting for services to start (30 seconds)...")
@@ -120,13 +120,13 @@ def main():
         time.sleep(2)  # Brief pause between tests
     
     print("\n" + "=" * 50)
-    print(f"📊 Test Results: {passed}/{total} tests passed")
+    print(f" Test Results: {passed}/{total} tests passed")
     
     if passed == total:
-        print("🎉 All tests passed! Docker implementation is working correctly.")
+        print(" All tests passed! Docker implementation is working correctly.")
         sys.exit(0)
     else:
-        print("⚠️  Some tests failed. Check the logs and ensure all services are running.")
+        print("⚠  Some tests failed. Check the logs and ensure all services are running.")
         sys.exit(1)
 
 if __name__ == "__main__":

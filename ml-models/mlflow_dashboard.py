@@ -84,7 +84,7 @@ def start_mlflow_ui(config=None, background=True):
     
     if background:
         process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        print(f"✅ MLflow UI started in background (PID: {process.pid})")
+        print(f" MLflow UI started in background (PID: {process.pid})")
         print(f"🔗 Access dashboard at: http://{config['host']}:{config['port']}")
         return process
     else:
@@ -296,7 +296,7 @@ def main():
     """
     Main function for MLflow dashboard setup.
     """
-    print("🚀 MLflow Dashboard Setup")
+    print(" MLflow Dashboard Setup")
     print("=" * 40)
     
     # Setup server configuration
@@ -306,7 +306,7 @@ def main():
     create_mlflow_commands_script()
     
     # Get current experiment summary
-    print("\n📊 Current Experiment Summary:")
+    print("\n Current Experiment Summary:")
     summary_df = get_experiment_summary()
     if not summary_df.empty:
         print(summary_df.to_string(index=False))
@@ -314,11 +314,11 @@ def main():
         print("No experiments found. Run experiments first!")
     
     # Generate report
-    print("\n📋 Generating experiment report...")
+    print("\n Generating experiment report...")
     report = generate_experiment_report(output_file="mlflow_experiment_report.txt")
     
-    print("\n🎯 Setup completed!")
-    print(f"💡 To start MLflow UI, run: python -c \"from mlflow_dashboard import start_mlflow_ui; start_mlflow_ui()\"")
+    print("\n Setup completed!")
+    print(f" To start MLflow UI, run: python -c \"from mlflow_dashboard import start_mlflow_ui; start_mlflow_ui()\"")
     print(f"🔗 Or manually run: mlflow ui --host {config['host']} --port {config['port']}")
 
 

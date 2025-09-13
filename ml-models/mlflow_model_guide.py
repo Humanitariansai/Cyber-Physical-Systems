@@ -62,7 +62,7 @@ class MLflowModelManager:
             'params': model_params or {},
             'mlflow_type': mlflow_type
         }
-        print(f"✅ Registered model: {model_name}")
+        print(f" Registered model: {model_name}")
     
     def run_experiment(self, model_name, train_data, test_data, target_col='temperature', 
                       custom_params=None, run_name=None):
@@ -94,7 +94,7 @@ class MLflowModelManager:
         if run_name is None:
             run_name = f"{model_name}_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
         
-        print(f"🚀 Running experiment: {run_name}")
+        print(f" Running experiment: {run_name}")
         print(f"   Model: {model_name}")
         print(f"   Parameters: {params}")
         
@@ -195,7 +195,7 @@ class MLflowModelManager:
             
             self.experiment_results.append(result)
             
-            print(f"✅ Experiment completed: {run_name}")
+            print(f" Experiment completed: {run_name}")
             print(f"   RMSE: {metrics.get('rmse', 'N/A')}")
             print(f"   MAE: {metrics.get('mae', 'N/A')}")
             print(f"   R²: {metrics.get('r2', 'N/A')}")
@@ -284,7 +284,7 @@ class MLflowModelManager:
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
         comparison_file = f'model_comparison_{timestamp}.csv'
         comparison_df.to_csv(comparison_file, index=False)
-        print(f"\n📊 Comparison saved to: {comparison_file}")
+        print(f"\n Comparison saved to: {comparison_file}")
         
         return comparison_df
     
@@ -413,7 +413,7 @@ def add_new_model_example():
         mlflow_type="sklearn"  # Or "pytorch" if it's a PyTorch model
     )
     
-    print("✅ Added new Sequence Model to MLflow tracking")
+    print(" Added new Sequence Model to MLflow tracking")
     return manager
 
 
@@ -421,7 +421,7 @@ def run_comprehensive_experiments():
     """
     Run experiments with all registered models and compare results.
     """
-    print("🚀 STARTING COMPREHENSIVE MODEL EXPERIMENTS")
+    print(" STARTING COMPREHENSIVE MODEL EXPERIMENTS")
     print("=" * 60)
     
     # Create synthetic dataset
@@ -442,7 +442,7 @@ def run_comprehensive_experiments():
     train_data = data[:train_size]
     test_data = data[train_size:]
     
-    print(f"📊 Dataset: {len(train_data)} train, {len(test_data)} test samples")
+    print(f" Dataset: {len(train_data)} train, {len(test_data)} test samples")
     
     # Set up model manager with all standard models
     manager = setup_standard_models()
@@ -474,7 +474,7 @@ def run_comprehensive_experiments():
     # Get best model
     best_model = manager.get_best_model('rmse')
     
-    print(f"\n🎯 Experiments completed! Check MLflow UI at: http://localhost:5000")
+    print(f"\n Experiments completed! Check MLflow UI at: http://localhost:5000")
     
     return manager, comparison_df
 
