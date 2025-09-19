@@ -168,7 +168,11 @@ class BasicForecasterOptimizer(HyperparameterOptimizer):
         
         # Import model
         try:
-            from basic_forecaster import BasicTimeSeriesForecaster
+            # Import with better path handling
+            try:
+                from ml_models.basic_forecaster import BasicTimeSeriesForecaster
+            except ImportError:
+                from basic_forecaster import BasicTimeSeriesForecaster
         except ImportError:
             raise ImportError("Could not import BasicTimeSeriesForecaster")
         
@@ -263,7 +267,11 @@ class XGBoostForecasterOptimizer(HyperparameterOptimizer):
         
         # Import model
         try:
-            from xgboost_forecaster import XGBoostForecaster
+            # Import with better path handling
+            try:
+                from ml_models.xgboost_forecaster import XGBoostForecaster
+            except ImportError:
+                from xgboost_forecaster import XGBoostForecaster
         except ImportError:
             raise ImportError("Could not import XGBoostForecaster")
         
