@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  # MLflow Server - simplified
+  mlflow-server:
+    build:
+      context: .
+      dockerfile: Dockerfile.simple
+    ports:
+      - "5000:5000"
+    command: mlflow ui --host 0.0.0.0 --port 5000 --backend-store-uri file:///app/mlruns
+    volumes:
+      - ./mlruns:/app/mlruns
+      - ./data:/app/data
+    environment:
+      - PYTHONPATH=/app:/app/ml-models:/app/data-collection
+
+  # Prediction API - simplified  
+  prediction-api:
+    build:
+      context: .
+      dockerfile: Dockerfile.simple
+    ports:
+      - "8080:8080"
+    command: python docker/prediction_api.py
+    volumes:
+      - ./mlruns:/app/mlruns
+      - ./data:/app/data
+    environment:
+      - PYTHONPATH=/app:/app/ml-models:/app/data-collection
+      - MLFLOW_TRACKING_URI=http://mlflow-server:5000
+    depends_on:
+      - mlflow-server
+
+networks:
+  default:
+    name: cyber-physical-network
