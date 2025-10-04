@@ -1,0 +1,42 @@
+# Streamlit Dashboard Configuration
+# Configuration settings for the CPS Cloud Dashboard
+
+[theme]
+# Color theme settings
+primaryColor = "#667eea"
+backgroundColor = "#ffffff"
+secondaryBackgroundColor = "#f0f2f6"
+textColor = "#262730"
+font = "sans serif"
+
+[server]
+# Server configuration
+port = 8501
+address = "0.0.0.0"
+maxUploadSize = 200
+enableCORS = false
+enableXsrfProtection = true
+
+[client]
+# Client settings
+showErrorDetails = true
+toolbarMode = "minimal"
+
+[runner]
+# Runner configuration
+magicEnabled = true
+installTracer = false
+fixMatplotlib = true
+
+[logger]
+# Logging configuration
+level = "info"
+messageFormat = "%(asctime)s %(message)s"
+
+[mapbox]
+# Mapbox token (if using geographical visualizations)
+token = ""
+
+[deprecation]
+# Deprecation warnings
+showPyplotGlobalUse = false

@@ -1,0 +1,58 @@
+# Dashboard Configuration YAML
+# Default configuration for CPS Cloud Dashboard
+
+dashboard:
+  title: "CPS Cloud Dashboard"
+  description: "Cyber-Physical Systems Monitoring and Control"
+  version: "1.0.0"
+  auto_refresh: true
+  refresh_interval: 60  # seconds
+  theme: "light"
+
+data:
+  default_time_range: "24h"
+  max_data_points: 10000
+  cache_timeout: 300  # seconds
+  data_sources:
+    sensors: true
+    ml_models: true
+    system_metrics: true
+
+ml_models:
+  enabled_models: 
+    - "basic_forecaster"
+    - "xgboost"
+    - "arima"
+  default_model: "xgboost"
+  prediction_horizon: 7  # days
+  confidence_interval: 0.95
+  auto_retrain: false
+
+visualization:
+  chart_height: 400
+  color_scheme: "blue"
+  show_confidence_intervals: true
+  animation_enabled: true
+
+alerts:
+  enabled: true
+  email_notifications: false
+  thresholds:
+    cpu_usage: 80
+    memory_usage: 85
+    disk_usage: 90
+    model_accuracy: 0.8
+
+security:
+  require_authentication: false
+  session_timeout: 3600  # seconds
+  allowed_ips: []
+  rate_limiting: true
+
+export:
+  formats: 
+    - "csv"
+    - "json"
+    - "excel"
+  max_export_size: 1000000  # rows
+  include_metadata: true
