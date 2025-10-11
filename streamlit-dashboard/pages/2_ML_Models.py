@@ -23,7 +23,7 @@ from utils.data_loader import DataLoader
 
 st.set_page_config(
     page_title="ML Models - CPS Dashboard",
-    page_icon="🤖",
+    page_icon=None,  # Removed emoji
     layout="wide"
 )
 
@@ -36,7 +36,7 @@ def main():
     if 'data_loader' not in st.session_state:
         st.session_state.data_loader = DataLoader()
     
-    st.title("🤖 ML Model Management")
+    st.title("ML Model Management")
     st.markdown("Train, evaluate, and monitor machine learning models")
     
     # Sidebar
@@ -48,15 +48,19 @@ def main():
             ["Model Overview", "Model Training", "Model Evaluation", "Hyperparameter Tuning", "Model Monitoring"]
         )
         
-        # Model selection
+        # Model selection with defensive handling
         available_models = st.session_state.ml_manager.get_available_models()
-        selected_model = st.selectbox(
-            "Select Model",
-            available_models,
-            index=0 if available_models else None
-        )
+        if available_models:
+            selected_model = st.selectbox(
+                "Select Model",
+                available_models,
+                index=0
+            )
+        else:
+            st.info("No models available")
+            selected_model = None
         
-        if st.button("🔄 Refresh Models"):
+        if st.button("Refresh Models"):
             st.session_state.ml_manager._discover_models()
             st.rerun()
     
@@ -74,7 +78,7 @@ def main():
 
 def render_model_overview():
     """Render model overview"""
-    st.subheader("📋 Model Overview")
+    st.subheader("Model Overview")
     
     # Model status cards
     col1, col2, col3, col4 = st.columns(4)
@@ -92,23 +96,23 @@ def render_model_overview():
         st.metric("Best Accuracy", "94.2%", "+1.3%")
     
     # Model comparison table
-    st.subheader("📊 Model Comparison")
+    st.subheader("Model Comparison")
     
     performance_data = st.session_state.ml_manager.get_model_performance()
     
-    # Convert performance data to DataFrame
+    # Convert performance data to DataFrame with defensive handling
     model_rows = []
     for model_name, metrics in performance_data.items():
         model_info = st.session_state.ml_manager.get_model_info(model_name)
         
         model_rows.append({
             "Model": model_name.replace('_', ' ').title(),
-            "Status": "🟢 Active" if model_info and model_info.get('loaded') else "🟡 Idle",
+            "Status": "Active" if model_info and model_info.get('loaded') else "Idle",
             "RMSE": f"{metrics.get('rmse', 0):.3f}",
             "MAE": f"{metrics.get('mae', 0):.3f}",
             "R²": f"{metrics.get('r2', 0):.3f}",
             "Last Updated": model_info.get('last_modified', datetime.now()).strftime("%Y-%m-%d %H:%M") if model_info and model_info.get('last_modified') else "N/A",
-            "Actions": "🚀 Train | 📊 Evaluate | 🔧 Tune"
+            "Actions": "Train | Evaluate | Tune"
         })
     
     if model_rows:
@@ -121,7 +125,7 @@ def render_model_overview():
     col1, col2 = st.columns(2)
     
     with col1:
-        st.subheader("📈 Performance Comparison")
+        st.subheader("Performance Comparison")
         
         if model_rows:
             # Create performance comparison chart
@@ -151,7 +155,7 @@ def render_model_overview():
             st.plotly_chart(fig, use_container_width=True)
     
     with col2:
-        st.subheader("🎯 Accuracy Trends")
+        st.subheader("Accuracy Trends")
         
         # Generate sample accuracy trends over time
         dates = pd.date_range(start=datetime.now()-timedelta(days=30), end=datetime.now(), freq='D')
@@ -183,13 +187,13 @@ def render_model_overview():
 
 def render_model_training():
     """Render model training interface"""
-    st.subheader("🚀 Model Training")
+    st.subheader("Model Training")
     
     col1, col2 = st.columns([2, 1])
     
     with col1:
         # Training configuration
-        st.subheader("⚙️ Training Configuration")
+        st.subheader("Training Configuration")
         
         model_type = st.selectbox(
             "Model Type",
@@ -222,7 +226,7 @@ def render_model_training():
                 optimizer = st.selectbox("Optimizer", ["adam", "sgd", "rmsprop"])
         
         # Data configuration
-        st.subheader("📊 Data Configuration")
+        st.subheader("Data Configuration")
         col_a, col_b = st.columns(2)
         
         with col_a:
@@ -239,12 +243,12 @@ def render_model_training():
             )
         
         # Advanced options
-        with st.expander("🔧 Advanced Options"):
-            cross_validation = st.toggle("Enable Cross-Validation", value=True)
+        with st.expander("Advanced Options"):
+            cross_validation = st.checkbox("Enable Cross-Validation", value=True)
             if cross_validation:
                 cv_folds = st.slider("CV Folds", 3, 10, 5)
             
-            early_stopping = st.toggle("Early Stopping", value=True)
+            early_stopping = st.checkbox("Enable Early Stopping", value=True)
             if early_stopping:
                 patience = st.slider("Patience", 5, 50, 10)
             
@@ -258,7 +262,7 @@ def render_model_training():
         col_train, col_schedule = st.columns(2)
         
         with col_train:
-            if st.button("🚀 Start Training", type="primary", use_container_width=True):
+            if st.button("Start Training"):
                 start_training_job(model_type, {
                     'n_lags': n_lags if model_type == "Basic Forecaster" else None,
                     'n_estimators': n_estimators if model_type == "XGBoost" else None,
@@ -267,11 +271,11 @@ def render_model_training():
                 })
         
         with col_schedule:
-            if st.button("⏰ Schedule Training", use_container_width=True):
+            if st.button("Schedule Training"):
                 st.info("Training scheduled for later execution")
     
     with col2:
-        st.subheader("📈 Training Status")
+        st.subheader("Training Status")
         
         # Active training jobs
         if 'training_jobs' not in st.session_state:
@@ -295,15 +299,15 @@ def render_model_training():
                         st.write(f"Loss: {job.get('loss', 'N/A')}")
                         st.write(f"ETA: {job.get('eta', 'Calculating...')}")
                     
-                    if st.button(f"⏹️ Stop", key=f"stop_{job['id']}"):
+                    if st.button("Stop", key=f"stop_{job['id']}"):
                         stop_training_job(job['id'])
                     
-                    st.divider()
+                    st.markdown("---")
         else:
             st.info("No active training jobs")
         
         # Recent completions
-        st.subheader("✅ Recent Completions")
+        st.subheader("Recent Completions")
         
         completed_jobs = [
             {"model": "XGBoost", "time": "2 hours ago", "accuracy": "94.2%"},
@@ -314,21 +318,28 @@ def render_model_training():
         for job in completed_jobs:
             st.write(f"**{job['model']}** - {job['time']}")
             st.write(f"Accuracy: {job['accuracy']}")
-            st.divider()
+            st.markdown("---")
 
 def render_model_evaluation(selected_model):
     """Render model evaluation"""
-    st.subheader(f"📊 Model Evaluation: {selected_model}")
-    
     if not selected_model:
         st.warning("Please select a model from the sidebar")
         return
+        
+    st.subheader(f"Model Evaluation: {selected_model}")
     
     # Evaluation metrics
     col1, col2, col3 = st.columns(3)
     
+    # Get model performance with defensive handling
     performance = st.session_state.ml_manager.get_model_performance(selected_model)
-    metrics = performance.get(selected_model, {})
+    metrics = {}
+    
+    if isinstance(performance, dict):
+        if selected_model in performance:
+            metrics = performance[selected_model]
+        else:
+            metrics = performance
     
     with col1:
         st.metric("RMSE", f"{metrics.get('rmse', 0):.3f}")
@@ -343,7 +354,7 @@ def render_model_evaluation(selected_model):
     col1, col2 = st.columns(2)
     
     with col1:
-        st.subheader("📈 Predictions vs Actual")
+        st.subheader("Predictions vs Actual")
         
         # Generate sample evaluation data
         n_points = 100
@@ -383,7 +394,7 @@ def render_model_evaluation(selected_model):
         st.plotly_chart(fig, use_container_width=True)
     
     with col2:
-        st.subheader("📊 Residual Analysis")
+        st.subheader("Residual Analysis")
         
         residuals = predicted - actual
         
@@ -411,7 +422,7 @@ def render_model_evaluation(selected_model):
         st.plotly_chart(fig, use_container_width=True)
     
     # Time series evaluation
-    st.subheader("⏰ Time Series Performance")
+    st.subheader("Time Series Performance")
     
     # Generate time series evaluation
     dates = pd.date_range(start=datetime.now()-timedelta(days=30), end=datetime.now(), freq='D')
@@ -449,20 +460,20 @@ def render_model_evaluation(selected_model):
     col1, col2, col3 = st.columns(3)
     
     with col1:
-        if st.button("🔄 Re-evaluate", use_container_width=True):
+        if st.button("Re-evaluate"):
             st.success("Model re-evaluation started")
     
     with col2:
-        if st.button("📊 Generate Report", use_container_width=True):
+        if st.button("Generate Report"):
             generate_evaluation_report(selected_model)
     
     with col3:
-        if st.button("🚀 Deploy Model", use_container_width=True):
+        if st.button("Deploy Model"):
             st.success("Model deployment initiated")
 
 def render_hyperparameter_tuning():
     """Render hyperparameter tuning interface"""
-    st.subheader("🔧 Hyperparameter Tuning")
+    st.subheader("Hyperparameter Tuning")
     
     col1, col2 = st.columns([2, 1])
     
@@ -526,7 +537,7 @@ def render_hyperparameter_tuning():
             n_jobs = st.slider("Parallel Jobs", 1, 8, 4)
         
         # Start tuning
-        if st.button("🔧 Start Hyperparameter Tuning", type="primary"):
+        if st.button("Start Hyperparameter Tuning"):
             start_hyperparameter_tuning(model_type, tuning_method, {
                 'n_trials': n_trials,
                 'cv_folds': cv_folds,
@@ -534,7 +545,7 @@ def render_hyperparameter_tuning():
             })
     
     with col2:
-        st.subheader("🎯 Tuning Progress")
+        st.subheader("Tuning Progress")
         
         # Mock tuning progress
         if 'tuning_active' in st.session_state and st.session_state.tuning_active:
@@ -552,7 +563,7 @@ def render_hyperparameter_tuning():
             st.info("No active tuning job")
         
         # Best parameters history
-        st.subheader("📈 Best Parameters")
+        st.subheader("Best Parameters")
         
         if model_type == "XGBoost":
             best_params = {
@@ -571,7 +582,7 @@ def render_hyperparameter_tuning():
 
 def render_model_monitoring():
     """Render model monitoring dashboard"""
-    st.subheader("📡 Model Monitoring")
+    st.subheader("Model Monitoring")
     
     # Model health overview
     col1, col2, col3, col4 = st.columns(4)
@@ -592,7 +603,7 @@ def render_model_monitoring():
     col1, col2 = st.columns(2)
     
     with col1:
-        st.subheader("📊 Prediction Volume")
+        st.subheader("Prediction Volume")
         
         # Generate hourly prediction volume
         hours = list(range(24))
@@ -616,7 +627,7 @@ def render_model_monitoring():
         st.plotly_chart(fig, use_container_width=True)
     
     with col2:
-        st.subheader("⚡ Response Times")
+        st.subheader("Response Times")
         
         # Generate response time data
         timestamps = pd.date_range(end=datetime.now(), periods=24, freq='H')
@@ -641,7 +652,7 @@ def render_model_monitoring():
         st.plotly_chart(fig, use_container_width=True)
     
     # Model drift detection
-    st.subheader("🔍 Model Drift Detection")
+    st.subheader("Model Drift Detection")
     
     col1, col2 = st.columns([3, 1])
     
@@ -671,21 +682,21 @@ def render_model_monitoring():
         st.plotly_chart(fig, use_container_width=True)
     
     with col2:
-        st.subheader("🚨 Drift Alerts")
+        st.subheader("Drift Alerts")
         
         for i, (feature, score) in enumerate(zip(features, drift_scores)):
             if score > 0.7:
-                alert_type = "🔴 High"
+                alert_type = "High"
             elif score > 0.4:
-                alert_type = "🟡 Medium"
+                alert_type = "Medium"
             else:
-                alert_type = "🟢 Low"
+                alert_type = "Low"
             
             st.write(f"**{feature}**: {alert_type}")
             st.write(f"Score: {score:.3f}")
-            st.divider()
+            st.markdown("---")
         
-        if st.button("🔄 Retrain Model"):
+        if st.button("Retrain Model"):
             st.success("Model retraining initiated")
 
 def start_training_job(model_type, config):
@@ -733,7 +744,7 @@ def generate_evaluation_report(model_name):
     st.success(f"Evaluation report generated for {model_name}")
     
     # In a real app, this would generate and download a PDF report
-    with st.expander("📄 Report Preview"):
+    with st.expander("Report Preview"):
         st.markdown(f"""
         # Model Evaluation Report: {model_name}
         

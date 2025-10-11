@@ -7,6 +7,11 @@ A comprehensive Streamlit dashboard for monitoring, visualizing, and managing
 cyber-physical systems data with ML model integration.
 """
 
+# Import path setup first
+from utils.path_setup import setup_project_paths
+setup_project_paths()
+
+# Now import all other required modules
 import streamlit as st
 import pandas as pd
 import plotly.express as px
@@ -33,7 +38,7 @@ from components.metrics_cards import render_metrics_cards
 # Page configuration
 st.set_page_config(
     page_title="CPS Cloud Dashboard",
-    page_icon="🌐",
+    page_icon=None,  # Removed emoji
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -43,6 +48,14 @@ st.markdown("""
 <style>
     .main {
         padding-top: 2rem;
+    }
+    .block-container {
+        padding-top: 1rem;
+        padding-bottom: 1rem;
+    }
+    .element-container {
+        margin-bottom: 1rem;
+    }
     }
     .stMetric {
         background-color: #f0f2f6;
@@ -163,8 +176,8 @@ def render_overview_tab():
         time_range = [current_time - timedelta(minutes=x) for x in range(60, 0, -1)]
         
         # Sample sensor data
-        temperature_data = 20 + 5 * np.random.sin(np.linspace(0, 4*np.pi, 60)) + np.random.normal(0, 0.5, 60)
-        humidity_data = 50 + 10 * np.random.cos(np.linspace(0, 3*np.pi, 60)) + np.random.normal(0, 1, 60)
+        temperature_data = 20 + 5 * np.sin(np.linspace(0, 4*np.pi, 60)) + np.random.normal(0, 0.5, 60)
+        humidity_data = 50 + 10 * np.cos(np.linspace(0, 3*np.pi, 60)) + np.random.normal(0, 1, 60)
         
         # Create plot
         fig = make_subplots(

@@ -28,16 +28,17 @@ class MLflowConfig:
         
     def _setup_tracking_uri(self) -> str:
         """Set up MLflow tracking URI."""
-        # Use relative path approach for better Windows compatibility
-        mlruns_path = Path(__file__).parent / "mlruns"
+        # Use absolute path for Windows compatibility
+        mlruns_path = Path(__file__).parent.resolve() / "mlruns"
         mlruns_path.mkdir(exist_ok=True)
-        return "./mlruns"
+        mlflow.set_tracking_uri(str(mlruns_path))
+        return str(mlruns_path)
     
     def _setup_artifact_location(self) -> str:
         """Set up artifact storage location."""
-        artifacts_path = Path(__file__).parent / "mlflow-artifacts"
+        artifacts_path = Path(__file__).parent.resolve() / "mlflow-artifacts"
         artifacts_path.mkdir(exist_ok=True)
-        return "./mlflow-artifacts"
+        return str(artifacts_path)
 
 
 class ExperimentTracker:

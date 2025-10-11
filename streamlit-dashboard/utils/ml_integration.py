@@ -1,6 +1,6 @@
 """
 ML Integration Utility for Streamlit Dashboard
-Handles integration with ML models, predictions, and MLflow tracking.
+Handles integration with ML models and predictions.
 """
 
 import pandas as pd
@@ -30,14 +30,6 @@ except ImportError:
     XGBOOST_AVAILABLE = False
     print("XGBoost forecaster not available")
 
-try:
-    import mlflow
-    import mlflow.sklearn
-    MLFLOW_AVAILABLE = True
-except ImportError:
-    MLFLOW_AVAILABLE = False
-    print("MLflow not available")
-
 class MLModelManager:
     """Manages ML models and predictions for the dashboard"""
     
@@ -50,23 +42,8 @@ class MLModelManager:
         self.loaded_models = {}
         self.model_metadata = {}
         
-        # Initialize MLflow if available
-        if MLFLOW_AVAILABLE:
-            self._setup_mlflow()
-        
         # Load available models
         self._discover_models()
-    
-    def _setup_mlflow(self):
-        """Setup MLflow tracking"""
-        try:
-            mlflow_dir = self.models_dir / "mlruns"
-            if mlflow_dir.exists():
-                mlflow.set_tracking_uri(f"file://{mlflow_dir}")
-            else:
-                mlflow.set_tracking_uri("sqlite:///mlflow.db")
-        except Exception as e:
-            print(f"Error setting up MLflow: {e}")
     
     def _discover_models(self):
         """Discover available trained models"""
@@ -148,46 +125,9 @@ class MLModelManager:
         Returns:
             dict: Performance metrics
         """
-        if MLFLOW_AVAILABLE:
-            return self._get_mlflow_performance(model_name)
-        else:
-            return self._get_simulated_performance(model_name)
+        return self._get_performance_metrics(model_name)
     
-    def _get_mlflow_performance(self, model_name=None):
-        """Get performance from MLflow tracking"""
-        try:
-            experiments = mlflow.search_experiments()
-            
-            performance_data = {}
-            
-            for exp in experiments:
-                runs = mlflow.search_runs(experiment_ids=[exp.experiment_id])
-                
-                if not runs.empty:
-                    # Get the best run (lowest RMSE)
-                    if 'metrics.rmse' in runs.columns:
-                        best_run = runs.loc[runs['metrics.rmse'].idxmin()]
-                        
-                        exp_name = exp.name.lower().replace(' ', '_')
-                        
-                        performance_data[exp_name] = {
-                            'rmse': best_run.get('metrics.rmse', np.nan),
-                            'mae': best_run.get('metrics.mae', np.nan),
-                            'r2': best_run.get('metrics.r2', np.nan),
-                            'run_id': best_run.get('run_id', ''),
-                            'timestamp': best_run.get('start_time', datetime.now())
-                        }
-            
-            if model_name and model_name in performance_data:
-                return {model_name: performance_data[model_name]}
-            
-            return performance_data
-            
-        except Exception as e:
-            print(f"Error getting MLflow performance: {e}")
-            return self._get_simulated_performance(model_name)
-    
-    def _get_simulated_performance(self, model_name=None):
+    def _get_performance_metrics(self, model_name=None):
         """Get simulated performance metrics"""
         all_performance = {
             'basic_forecaster': {
