@@ -15,11 +15,12 @@ import json
 
 # Add module paths
 project_root = Path(__file__).parent.parent
-sys.path.append(str(project_root))
+sys.path.append(str(project_root / "ml-models"))
+sys.path.append(str(project_root / "data-collection"))
 
-from ml_models.basic_forecaster import BasicTimeSeriesForecaster
+from basic_forecaster import BasicTimeSeriesForecaster
 try:
-    from ml_models.mlflow_tracking import MLflowConfig, ExperimentTracker
+    from mlflow_tracking import MLflowConfig, ExperimentTracker
     MLFLOW_AVAILABLE = True
 except ImportError:
     MLFLOW_AVAILABLE = False

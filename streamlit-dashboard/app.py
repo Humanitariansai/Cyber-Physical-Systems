@@ -199,7 +199,7 @@ def render_overview_tab():
         )
         
         fig.update_layout(height=400, showlegend=False)
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
     
     with col2:
         st.subheader("System Status")
@@ -213,7 +213,7 @@ def render_overview_tab():
         }
         
         status_df = pd.DataFrame(status_data)
-        st.dataframe(status_df, use_container_width=True, hide_index=True)
+        st.dataframe(status_df, width="stretch", hide_index=True)
         
         # Quick actions
         st.subheader("Quick Actions")
@@ -283,7 +283,7 @@ def render_ml_predictions_tab():
             height=500
         )
         
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
     
     with col2:
         st.subheader("Model Performance")
@@ -297,7 +297,7 @@ def render_ml_predictions_tab():
         }
         
         metrics_df = pd.DataFrame(metrics_data)
-        st.dataframe(metrics_df, use_container_width=True, hide_index=True)
+        st.dataframe(metrics_df, width="stretch", hide_index=True)
         
         # Model selection
         selected_model = st.selectbox(
@@ -376,7 +376,7 @@ def render_historical_data_tab():
             hovermode='x unified'
         )
         
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
         
         # Statistical summary
         st.subheader("Statistical Summary")
@@ -395,7 +395,7 @@ def render_historical_data_tab():
             })
         
         summary_df = pd.DataFrame(summary_data)
-        st.dataframe(summary_df, use_container_width=True, hide_index=True)
+        st.dataframe(summary_df, width="stretch", hide_index=True)
 
 def render_system_health_tab():
     """Render the system health tab"""
@@ -429,7 +429,7 @@ def render_system_health_tab():
             }
         ))
         fig_cpu.update_layout(height=300)
-        st.plotly_chart(fig_cpu, use_container_width=True)
+        st.plotly_chart(fig_cpu, width="stretch")
         
         # Memory usage
         memory_usage = np.random.uniform(30, 70)
@@ -453,7 +453,7 @@ def render_system_health_tab():
             }
         ))
         fig_memory.update_layout(height=300)
-        st.plotly_chart(fig_memory, use_container_width=True)
+        st.plotly_chart(fig_memory, width="stretch")
     
     with col2:
         st.subheader("Service Status")
@@ -467,7 +467,7 @@ def render_system_health_tab():
         ]
         
         services_df = pd.DataFrame(services)
-        st.dataframe(services_df, use_container_width=True, hide_index=True)
+        st.dataframe(services_df, width="stretch", hide_index=True)
         
         st.subheader("Recent Alerts")
         
@@ -479,7 +479,7 @@ def render_system_health_tab():
         ]
         
         alerts_df = pd.DataFrame(alerts)
-        st.dataframe(alerts_df, use_container_width=True, hide_index=True)
+        st.dataframe(alerts_df, width="stretch", hide_index=True)
 
 def render_model_training_tab():
     """Render the model training tab"""
@@ -506,7 +506,7 @@ def render_model_training_tab():
             height=400
         )
         
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
         
         # Experiment history
         st.subheader("Recent Experiments")
@@ -519,7 +519,7 @@ def render_model_training_tab():
         ]
         
         experiments_df = pd.DataFrame(experiments)
-        st.dataframe(experiments_df, use_container_width=True, hide_index=True)
+        st.dataframe(experiments_df, width="stretch", hide_index=True)
     
     with col2:
         st.subheader("Start New Training")

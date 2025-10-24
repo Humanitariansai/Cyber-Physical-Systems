@@ -64,17 +64,17 @@ def render_sidebar():
             
             interval_seconds = interval_map[refresh_interval]
             
-            # Auto-refresh logic
-            if 'last_refresh' not in st.session_state:
-                st.session_state.last_refresh = time.time()
+            # Auto-refresh logic (use different key to avoid conflicts)
+            if 'sidebar_last_refresh' not in st.session_state:
+                st.session_state.sidebar_last_refresh = time.time()
             
             current_time = time.time()
-            if current_time - st.session_state.last_refresh >= interval_seconds:
-                st.session_state.last_refresh = current_time
+            if current_time - st.session_state.sidebar_last_refresh >= interval_seconds:
+                st.session_state.sidebar_last_refresh = current_time
                 st.rerun()
             
             # Show countdown
-            time_since_refresh = int(current_time - st.session_state.last_refresh)
+            time_since_refresh = int(current_time - st.session_state.sidebar_last_refresh)
             time_until_refresh = interval_seconds - time_since_refresh
             
             st.info(f"Next refresh in: {time_until_refresh}s")

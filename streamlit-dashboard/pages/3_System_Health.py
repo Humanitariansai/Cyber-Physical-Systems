@@ -64,9 +64,14 @@ def main():
 
     # Check if it's time to refresh
     now = datetime.now()
+    
+    # Ensure last_refresh is a datetime object
+    if not isinstance(st.session_state.last_refresh, datetime):
+        st.session_state.last_refresh = datetime.now()
+    
     if auto_refresh and (now - st.session_state.last_refresh).total_seconds() >= refresh_rate:
-        st.rerun()
         st.session_state.last_refresh = now
+        st.rerun()
 
     # Initialize data loader
     if 'data_loader' not in st.session_state:
@@ -129,7 +134,7 @@ def display_cpu_metrics():
     ))
     
     fig.update_layout(height=250)
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
     
     # CPU core details
     st.markdown(f"**Core Count:** {np.random.randint(4, 16)}")
@@ -167,7 +172,7 @@ def display_memory_metrics():
     ))
     
     fig.update_layout(height=250)
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
     
     # Memory details
     st.markdown(f"**Total Memory:** {total_memory:.1f} GB")
@@ -191,7 +196,7 @@ def display_disk_metrics():
     )])
     
     fig.update_layout(height=250)
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
     
     # Disk details
     st.markdown(f"**Total Space:** {total_space:.1f} GB")
@@ -218,7 +223,7 @@ def display_network_metrics():
         barmode='group'
     )
     
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
     
     # Network details
     st.markdown(f"**Download Speed:** {download_speed:.1f} Mbps")
@@ -237,10 +242,12 @@ def display_historical_trends(metrics, time_window):
     
     hours = window_hours[time_window]
     points = 100
+    # Calculate frequency in minutes, ensuring it's at least 1
+    freq_minutes = max(1, int(hours * 60 / points))
     timestamps = pd.date_range(
         end=datetime.now(),
         periods=points,
-        freq=f"{int(hours * 60 / points)}min"
+        freq=f"{freq_minutes}min"
     )
     
     # Create figure with secondary y-axis
@@ -289,7 +296,7 @@ def display_historical_trends(metrics, time_window):
     fig.update_yaxes(title_text="Usage %", secondary_y=False)
     fig.update_yaxes(title_text="Network Speed (Mbps)", secondary_y=True)
     
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
 
 if __name__ == "__main__":
     main()

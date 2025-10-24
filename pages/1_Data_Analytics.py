@@ -15,9 +15,9 @@ import sys
 
 # Add module paths
 project_root = Path(__file__).parent.parent
-sys.path.append(str(project_root))
+sys.path.append(str(project_root / "data-collection"))
 
-from data_collection.data_collector import DataCollector
+from data_collector import DataCollector
 
 # Page config
 st.set_page_config(

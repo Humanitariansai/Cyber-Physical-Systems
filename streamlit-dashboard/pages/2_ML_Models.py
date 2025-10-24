@@ -17,9 +17,18 @@ import time
 # Add project paths
 project_root = Path(__file__).parent.parent.parent
 sys.path.append(str(project_root / "streamlit-dashboard"))
+sys.path.append(str(project_root / "ml-models"))
 
 from utils.ml_integration import MLModelManager
 from utils.data_loader import DataLoader
+
+# Try to import LSTM forecaster
+try:
+    from lstm_forecaster import LSTMTimeSeriesForecaster
+    LSTM_AVAILABLE = True
+except ImportError:
+    LSTM_AVAILABLE = False
+    print("LSTM forecaster not available")
 
 st.set_page_config(
     page_title="ML Models - CPS Dashboard",
@@ -50,6 +59,11 @@ def main():
         
         # Model selection with defensive handling
         available_models = st.session_state.ml_manager.get_available_models()
+        
+        # Add LSTM to available models if TensorFlow is available
+        if LSTM_AVAILABLE and "LSTM" not in available_models:
+            available_models = ["LSTM"] + list(available_models)
+        
         if available_models:
             selected_model = st.selectbox(
                 "Select Model",
@@ -83,8 +97,12 @@ def render_model_overview():
     # Model status cards
     col1, col2, col3, col4 = st.columns(4)
     
+    total_models = 3
+    if LSTM_AVAILABLE:
+        total_models += 1
+    
     with col1:
-        st.metric("Total Models", "3", "+1")
+        st.metric("Total Models", str(total_models), "+1" if LSTM_AVAILABLE else "0")
     
     with col2:
         st.metric("Active Models", "2", "0")
@@ -115,9 +133,26 @@ def render_model_overview():
             "Actions": "Train | Evaluate | Tune"
         })
     
+    # Add LSTM to the model list if available
+    if LSTM_AVAILABLE:
+        lstm_metrics = st.session_state.get('lstm_metrics', {
+            'rmse': 1.650,
+            'mae': 1.320,
+            'r2': 0.950
+        })
+        model_rows.append({
+            "Model": "LSTM",
+            "Status": "Ready" if 'lstm_model' in st.session_state else "Idle",
+            "RMSE": f"{lstm_metrics.get('rmse', 1.650):.3f}",
+            "MAE": f"{lstm_metrics.get('mae', 1.320):.3f}",
+            "R²": f"{lstm_metrics.get('r2', 0.950):.3f}",
+            "Last Updated": datetime.now().strftime("%Y-%m-%d %H:%M") if 'lstm_model' in st.session_state else "N/A",
+            "Actions": "Train | Evaluate | Tune"
+        })
+    
     if model_rows:
         models_df = pd.DataFrame(model_rows)
-        st.dataframe(models_df, use_container_width=True, hide_index=True)
+        st.dataframe(models_df, width="stretch", hide_index=True)
     else:
         st.info("No models found. Start by training a new model.")
     
@@ -152,7 +187,7 @@ def render_model_overview():
                 height=400
             )
             
-            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fig, width="stretch")
     
     with col2:
         st.subheader("Accuracy Trends")
@@ -183,7 +218,7 @@ def render_model_overview():
             height=400
         )
         
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
 
 def render_model_training():
     """Render model training interface"""
@@ -195,13 +230,38 @@ def render_model_training():
         # Training configuration
         st.subheader("Training Configuration")
         
+        # Build model type list dynamically
+        model_types = ["Basic Forecaster", "XGBoost", "ARIMA", "Neural Network", "Random Forest"]
+        if LSTM_AVAILABLE:
+            model_types.insert(0, "LSTM")  # Add LSTM as first option if available
+        
         model_type = st.selectbox(
             "Model Type",
-            ["Basic Forecaster", "XGBoost", "ARIMA", "Neural Network", "Random Forest"]
+            model_types
         )
         
         # Model-specific parameters
-        if model_type == "Basic Forecaster":
+        if model_type == "LSTM":
+            st.subheader("LSTM Parameters")
+            col_a, col_b = st.columns(2)
+            with col_a:
+                sequence_length = st.slider("Sequence Length", 5, 50, 10,
+                    help="Number of past time steps to use for prediction")
+                n_lstm_units = st.slider("LSTM Units", 16, 256, 50,
+                    help="Number of units in the LSTM layer")
+                dropout_rate = st.slider("Dropout Rate", 0.0, 0.5, 0.2,
+                    help="Dropout rate for regularization")
+            with col_b:
+                epochs = st.slider("Training Epochs", 10, 200, 100,
+                    help="Number of training iterations")
+                batch_size = st.slider("Batch Size", 8, 128, 32,
+                    help="Number of samples per training batch")
+                learning_rate = st.select_slider("Learning Rate", 
+                    options=[0.0001, 0.001, 0.01, 0.1], 
+                    value=0.001,
+                    help="Optimizer learning rate")
+                    
+        elif model_type == "Basic Forecaster":
             st.subheader("Basic Forecaster Parameters")
             n_lags = st.slider("Number of Lags", 1, 20, 5)
             
@@ -263,12 +323,33 @@ def render_model_training():
         
         with col_train:
             if st.button("Start Training"):
-                start_training_job(model_type, {
-                    'n_lags': n_lags if model_type == "Basic Forecaster" else None,
-                    'n_estimators': n_estimators if model_type == "XGBoost" else None,
+                # Prepare config based on model type
+                config = {
                     'train_size': train_size / 100,
                     'data_source': data_source
-                })
+                }
+                
+                # Add model-specific parameters
+                if model_type == "LSTM":
+                    config.update({
+                        'sequence_length': sequence_length,
+                        'n_lstm_units': n_lstm_units,
+                        'dropout_rate': dropout_rate,
+                        'epochs': epochs,
+                        'batch_size': batch_size,
+                        'learning_rate': learning_rate
+                    })
+                elif model_type == "Basic Forecaster":
+                    config['n_lags'] = n_lags
+                elif model_type == "XGBoost":
+                    config.update({
+                        'n_estimators': n_estimators,
+                        'max_depth': max_depth,
+                        'learning_rate': learning_rate,
+                        'subsample': subsample
+                    })
+                
+                start_training_job(model_type, config)
         
         with col_schedule:
             if st.button("Schedule Training"):
@@ -319,6 +400,49 @@ def render_model_training():
             st.write(f"**{job['model']}** - {job['time']}")
             st.write(f"Accuracy: {job['accuracy']}")
             st.markdown("---")
+    
+    # Quick LSTM Training Demo
+    if LSTM_AVAILABLE and model_type == "LSTM":
+        st.markdown("---")
+        st.subheader("🚀 Quick LSTM Training Demo")
+        st.info("Train an LSTM model with default parameters on sample data")
+        
+        col_demo1, col_demo2 = st.columns([3, 1])
+        
+        with col_demo1:
+            st.write("This will train an LSTM model on available sensor data and show predictions.")
+        
+        with col_demo2:
+            if st.button("Train Now", key="lstm_quick_train"):
+                # Create configuration
+                quick_config = {
+                    'sequence_length': sequence_length,
+                    'n_lstm_units': n_lstm_units,
+                    'dropout_rate': dropout_rate,
+                    'epochs': min(epochs, 50),  # Limit for quick demo
+                    'batch_size': batch_size,
+                    'learning_rate': learning_rate,
+                    'train_size': train_size / 100
+                }
+                
+                # Train the model
+                model, metrics = train_lstm_model(quick_config, st.session_state.data_loader)
+                
+                if model and metrics:
+                    st.success("LSTM model trained successfully!")
+                    
+                    # Display metrics
+                    col_m1, col_m2, col_m3 = st.columns(3)
+                    with col_m1:
+                        st.metric("RMSE", f"{metrics['rmse']:.4f}")
+                    with col_m2:
+                        st.metric("MAE", f"{metrics['mae']:.4f}")
+                    with col_m3:
+                        st.metric("R²", f"{metrics['r2']:.4f}")
+                    
+                    # Store in session state
+                    st.session_state['lstm_model'] = model
+                    st.session_state['lstm_metrics'] = metrics
 
 def render_model_evaluation(selected_model):
     """Render model evaluation"""
@@ -391,7 +515,7 @@ def render_model_evaluation(selected_model):
             height=400
         )
         
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
     
     with col2:
         st.subheader("Residual Analysis")
@@ -419,7 +543,7 @@ def render_model_evaluation(selected_model):
             height=400
         )
         
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
     
     # Time series evaluation
     st.subheader("Time Series Performance")
@@ -454,7 +578,7 @@ def render_model_evaluation(selected_model):
         height=400
     )
     
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
     
     # Evaluation actions
     col1, col2, col3 = st.columns(3)
@@ -624,7 +748,7 @@ def render_model_monitoring():
             height=300
         )
         
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
     
     with col2:
         st.subheader("Response Times")
@@ -649,7 +773,7 @@ def render_model_monitoring():
             height=300
         )
         
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
     
     # Model drift detection
     st.subheader("Model Drift Detection")
@@ -679,7 +803,7 @@ def render_model_monitoring():
             height=400
         )
         
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
     
     with col2:
         st.subheader("Drift Alerts")
@@ -698,6 +822,66 @@ def render_model_monitoring():
         
         if st.button("Retrain Model"):
             st.success("Model retraining initiated")
+
+def train_lstm_model(config, data_loader):
+    """
+    Train an LSTM model with the given configuration.
+    
+    Args:
+        config: Dictionary containing training parameters
+        data_loader: DataLoader instance for getting training data
+    
+    Returns:
+        Trained model and metrics
+    """
+    try:
+        # Get sample data
+        data = data_loader.get_sample_data()
+        
+        if data is None or len(data) < 50:
+            st.error("Insufficient data for training. Need at least 50 data points.")
+            return None, None
+        
+        # Initialize LSTM forecaster
+        forecaster = LSTMTimeSeriesForecaster(
+            sequence_length=config.get('sequence_length', 10),
+            n_lstm_units=config.get('n_lstm_units', 50),
+            dropout_rate=config.get('dropout_rate', 0.2),
+            learning_rate=config.get('learning_rate', 0.001),
+            enable_mlflow=False  # Disable MLflow in the dashboard context
+        )
+        
+        # Fit the model
+        with st.spinner('Training LSTM model...'):
+            history = forecaster.fit(
+                data,
+                epochs=config.get('epochs', 100),
+                batch_size=config.get('batch_size', 32),
+                validation_split=0.2
+            )
+        
+        # Make predictions on test data
+        train_size = int(len(data) * config.get('train_size', 0.8))
+        test_data = data.iloc[train_size:]
+        
+        predictions = forecaster.predict(test_data, n_steps=len(test_data))
+        
+        # Calculate metrics
+        from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
+        actual = test_data['value'].values
+        
+        metrics = {
+            'rmse': np.sqrt(mean_squared_error(actual[:len(predictions)], predictions)),
+            'mae': mean_absolute_error(actual[:len(predictions)], predictions),
+            'r2': r2_score(actual[:len(predictions)], predictions)
+        }
+        
+        return forecaster, metrics
+        
+    except Exception as e:
+        st.error(f"Error training LSTM model: {str(e)}")
+        return None, None
+
 
 def start_training_job(model_type, config):
     """Start a training job (simulated)"""

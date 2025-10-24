@@ -129,7 +129,7 @@ def render_time_series_analysis(data_sources, time_range):
         height=400
     )
     
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
     
     # Moving averages
     st.subheader("Moving Averages")
@@ -193,7 +193,7 @@ def render_time_series_analysis(data_sources, time_range):
         height=400
     )
     
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
 
 def render_statistical_analysis(data_sources, time_range):
     """Render statistical analysis section"""
@@ -249,7 +249,7 @@ def render_statistical_analysis(data_sources, time_range):
             height=300
         )
         
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
         
         # Box plot
         fig = go.Figure()
@@ -267,7 +267,7 @@ def render_statistical_analysis(data_sources, time_range):
             showlegend=False
         )
         
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
         
         st.markdown("---")
 
@@ -319,7 +319,7 @@ def render_correlation_analysis(data_sources, time_range):
         height=400
     )
     
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
     
     # Scatter plots
     st.subheader("Scatter Plot Matrix")
@@ -339,7 +339,7 @@ def render_correlation_analysis(data_sources, time_range):
                     height=400
                 )
                 
-                st.plotly_chart(fig, use_container_width=True)
+                st.plotly_chart(fig, width="stretch")
 
 def render_anomaly_detection(data_sources, time_range):
     """Render anomaly detection section"""
@@ -467,7 +467,7 @@ def render_anomaly_detection(data_sources, time_range):
             height=400
         )
         
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
         
         # Anomaly statistics
         n_detected = np.sum(is_anomaly)
