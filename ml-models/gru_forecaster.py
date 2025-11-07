@@ -284,6 +284,106 @@ class GRUTimeSeriesForecaster:
             self.current_run_id = None
 
 
+def create_sample_data(n_points=500):
+    """
+    Create sample time series data for testing.
+    
+    Args:
+        n_points (int): Number of data points to generate
+        
+    Returns:
+        pd.DataFrame: DataFrame with timestamp and value columns
+    """
+    timestamps = pd.date_range(start='2025-01-01', periods=n_points, freq='H')
+    
+    # Generate synthetic data with trend, seasonality, and noise
+    t = np.arange(n_points)
+    trend = 0.05 * t
+    seasonal = 10 * np.sin(2 * np.pi * t / 24)
+    noise = np.random.normal(0, 1, n_points)
+    
+    values = 50 + trend + seasonal + noise
+    
+    return pd.DataFrame({
+        'timestamp': timestamps,
+        'value': values
+    })
+
+
+def demo_gru_forecasting():
+    """Demonstrate GRU forecasting functionality."""
+    print("\n⚡ GRU Time-Series Forecasting Demo")
+    print("=" * 45)
+    
+    # 1. Generate sample data
+    print("\n1. Generating sample data...")
+    data = create_sample_data(500)
+    
+    train_size = int(len(data) * 0.8)
+    train_data = data[:train_size]
+    test_data = data[train_size:]
+    
+    print(f"   - Training samples: {len(train_data)}")
+    print(f"   - Test samples: {len(test_data)}")
+    
+    # 2. Initialize GRU model
+    print("\n2. Initializing GRU model...")
+    print("   (GRU: Lighter & faster than LSTM)")
+    forecaster = GRUTimeSeriesForecaster(
+        sequence_length=24,  # 24 hours of history
+        n_gru_units=64,
+        dropout_rate=0.2,
+        learning_rate=0.001,
+        enable_mlflow=False
+    )
+    
+    # 3. Train model
+    print("\n3. Training model...")
+    import time
+    start_time = time.time()
+    
+    forecaster.fit(train_data, epochs=50, batch_size=32)
+    
+    training_time = time.time() - start_time
+    print(f"   - Training completed in {training_time:.2f} seconds")
+    
+    # 4. Evaluate on test data
+    print("\n4. Evaluating on test data...")
+    test_predictions = forecaster.predict(test_data['value'], n_steps=len(test_data))
+    metrics = forecaster.evaluate(test_data[['value']])
+    
+    print("\n   Model Performance Metrics:")
+    print(f"   - RMSE: {metrics['rmse']:.3f}")
+    print(f"   - MAE:  {metrics['mae']:.3f}")
+    print(f"   - R²:   {metrics['r2']:.3f}")
+    
+    # 5. Make future predictions
+    print("\n5. Making future predictions...")
+    print("   Next 24 hour predictions:")
+    future_predictions = forecaster.predict(data['value'].tail(100), n_steps=24)
+    
+    for i, pred in enumerate(future_predictions[:5], 1):
+        print(f"   - Hour {i}: {pred:.2f}")
+    print("   ...")
+    
+    # 6. Compare with LSTM
+    print("\n6. GRU vs LSTM Comparison:")
+    print("   ✓ GRU trains faster (fewer parameters)")
+    print("   ✓ GRU uses less memory")
+    print("   ✓ Similar prediction accuracy")
+    print("   ✓ Better for real-time applications")
+    
+    # 7. Finalize
+    print("\n7. Finalizing...")
+    forecaster.finish_mlflow_run()
+    
+    print("\n✓ GRU forecasting demo completed successfully!")
+    print(f"✓ Training time: {training_time:.2f}s")
+    print(f"✓ Final RMSE: {metrics['rmse']:.3f}")
+    
+    return forecaster, metrics
+
+
 # TODO: Add the following features in future iterations:
 # 1. Bidirectional GRU support
 # 2. Stacked GRU layers
@@ -293,3 +393,21 @@ class GRUTimeSeriesForecaster:
 # 6. Hyperparameter optimization
 # 7. Early stopping and model checkpointing
 # 8. Advanced visualization methods
+
+
+if __name__ == "__main__":
+    try:
+        # Run demo
+        forecaster, metrics = demo_gru_forecasting()
+        
+        print("\n" + "=" * 45)
+        print("Demo Summary:")
+        print(f"  Model: GRU (Gated Recurrent Unit)")
+        print(f"  Architecture: Lighter than LSTM")
+        print(f"  Performance: RMSE = {metrics['rmse']:.3f}")
+        print("=" * 45)
+        
+    except Exception as e:
+        print(f"\n✗ Demo failed: {e}")
+        import traceback
+        traceback.print_exc()
