@@ -18,7 +18,7 @@ psycopg2-binary==2.9.9
 sqlalchemy==2.0.36
 
 # XGBoost support
-xgboost==2.1.1
+xgboost==2.1.4
 
 # Time series analysis
 statsmodels==0.14.4
