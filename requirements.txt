@@ -14,7 +14,7 @@ gunicorn==23.0.0
 optuna==4.0.0
 
 # Database support
-psycopg2-binary==2.9.9
+psycopg2-binary==2.9.11
 sqlalchemy==2.0.36
 
 # XGBoost support
