@@ -1,0 +1,58 @@
+name: Weekly Health Check
+
+on:
+  schedule:
+    # Run every Monday at 9 AM UTC
+    - cron: '0 9 * * 1'
+  workflow_dispatch:
+
+jobs:
+  health-check:
+    name: Project Health Check
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest pytest-cov bandit safety
+    
+    - name: Run all tests
+      run: |
+        pytest --cov=. --cov-report=term --cov-report=html
+      continue-on-error: true
+    
+    - name: Check for outdated dependencies
+      run: |
+        pip list --outdated
+      continue-on-error: true
+    
+    - name: Run security audit
+      run: |
+        safety check --json
+      continue-on-error: true
+    
+    - name: Generate health report
+      run: |
+        echo "## Weekly Health Check Report" > health-report.md
+        echo "" >> health-report.md
+        echo "Date: $(date)" >> health-report.md
+        echo "Branch: ${{ github.ref }}" >> health-report.md
+        echo "" >> health-report.md
+        echo "### Test Coverage" >> health-report.md
+        echo "See test results above" >> health-report.md
+    
+    - name: Upload health report
+      uses: actions/upload-artifact@v4
+      with:
+        name: weekly-health-report
+        path: health-report.md
