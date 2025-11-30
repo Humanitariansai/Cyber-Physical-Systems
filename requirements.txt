@@ -21,7 +21,7 @@ sqlalchemy==2.0.36
 xgboost==2.1.1
 
 # Time series analysis
-statsmodels==0.14.4
+statsmodels==0.14.5
 
 # Testing framework
 pytest==8.3.3
