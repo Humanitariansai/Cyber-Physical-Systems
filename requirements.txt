@@ -15,7 +15,7 @@ optuna==4.0.0
 
 # Database support
 psycopg2-binary==2.9.9
-sqlalchemy==2.0.36
+sqlalchemy==2.0.44
 
 # XGBoost support
 xgboost==2.1.1
