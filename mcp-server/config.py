@@ -2,16 +2,21 @@
 Configuration for MCP server
 """
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Optional
+
+
+def _default_db_path() -> str:
+    return str(Path(__file__).parent.parent.absolute() / "data" / "cold_chain.db")
 
 
 @dataclass
 class MCPServerConfig:
     """MCP server configuration."""
-    
+
     # Database
-    db_path: str = "../data/cold_chain.db"
+    db_path: str = field(default_factory=_default_db_path)
     
     # Server
     server_name: str = "cold-chain-monitor"
