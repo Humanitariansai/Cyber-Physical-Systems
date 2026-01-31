@@ -1,362 +1,414 @@
-﻿# Cyber-Physical Systems - Predictive Cold Chain Monitoring
+# Predictive Cold Chain Monitoring with Multi-Agent AI
 
-A distributed multi-agent system for predictive pharmaceutical cold chain monitoring, combining real-time control with AI-powered advisory capabilities.
+A distributed multi-agent system for predictive cold chain monitoring in pharmaceutical supply chains. Uses LSTM/GRU neural networks for 30-60 minute ahead temperature forecasts, integrated with an LLM advisory layer via Model Context Protocol (MCP).
 
-## Overview
+## Features
 
-This project addresses the $35 billion annual problem of pharmaceutical cold chain failures through:
-- **30-60 minute predictive early warning** before temperature breaches
-- **Sub-100ms real-time control** for safety-critical decisions
-- **Multi-agent architecture** with autonomous, coordinated agents
-- **Hybrid AI approach** separating fast control from intelligent advisory
-- **Edge deployment** capability on Raspberry Pi 4
-
-## Key Features
-
-- **Predictive Analytics**: ML-powered forecasting (GRU: 93.8% accuracy, LSTM: 94.2% accuracy)
-- **Real-time Monitoring**: <100ms response time for control decisions
-- **Multi-Agent System**: 4 specialized agents (Monitor, Predictor, Decision, Alert)
-- **Event-Driven Architecture**: Priority-based async message bus
-- **Interactive Dashboard**: Streamlit-based real-time visualization
-- **MLflow Integration**: Experiment tracking and model management
-- **CI/CD Pipelines**: Automated testing and deployment
-- **MCP Server**: LLM advisory layer for post-incident analysis
+- **Multi-Agent Architecture** — Distributed system with specialized Monitor, Predictor, Decision, and Alert agents communicating via priority message bus
+- **ML-Based Forecasting** — LSTM, GRU, and XGBoost models with ensemble averaging for 30/60-minute ahead temperature predictions
+- **LLM Advisory Layer** — MCP server providing natural language root cause analysis and maintenance recommendations
+- **Real-Time Dashboard** — Streamlit + Plotly visualization with 5 pages: overview, sensor data, predictions, alerts, system health
+- **MLflow Experiment Tracking** — Model versioning, metric logging, and hyperparameter comparison
+- **CI/CD Pipeline** — GitHub Actions with flake8 linting, bandit security scanning, pytest, Docker build, and automated deployment
+- **Pharmaceutical Compliance** — Temperature thresholds aligned with WHO cold chain standards (2-8°C)
 
 ## Architecture
 
-### Hybrid Design
-
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                     HYBRID ARCHITECTURE                          │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                   │
-│  ┌──────────────────────────────────────────────────────────┐  │
-│  │           REAL-TIME CONTROL CORE (<100ms)                 │  │
-│  │                    [Offline Capable]                      │  │
-│  │                                                            │  │
-│  │   Sensors → Monitor → Predictor → Decision → Alert        │  │
-│  │                          ↓                                 │  │
-│  │                    Message Bus (Priority Queue)           │  │
-│  │                          ↓                                 │  │
-│  │                    Orchestrator                           │  │
-│  └──────────────────────────────────────────────────────────┘  │
-│                              │                                   │
-│                              ▼                                   │
-│  ┌──────────────────────────────────────────────────────────┐  │
-│  │        LLM ADVISORY LAYER (1-5s, Post-Incident)          │  │
-│  │                                                            │  │
-│  │   MCP Server → Root Cause Analysis → Recommendations     │  │
-│  └──────────────────────────────────────────────────────────┘  │
-└─────────────────────────────────────────────────────────────────┘
-```
-
-## Quick Start
-
-### Prerequisites
-
-- Python 3.11+
-- pip or conda
-
-### Installation
-
-```bash
-# Clone repository
-git clone https://github.com/Humanitariansai/Cyber-Physical-Systems.git
-cd Cyber-Physical-Systems
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Initialize MLflow
-mlflow ui
-```
-
-### Run Multi-Agent Demo
-
-```bash
-cd multi-agent-system
-python demo.py
-```
-
-### Run Dashboard
-
-```bash
-streamlit run Home.py
++-------------------------------------------------------------------+
+|                    Cold Chain Monitoring System                     |
++-------------------------------------------------------------------+
+|                                                                     |
+|  +-------------+   +-------------+   +-------------+               |
+|  |   Monitor   |   |  Predictor  |   |  Decision   |               |
+|  |   Agent     |   |   Agent     |   |   Agent     |               |
+|  | - Ingestion |   | - LSTM/GRU  |   | - Threshold |               |
+|  | - Validation|   | - XGBoost   |   | - Escalation|               |
+|  | - Anomaly   |   | - 30-60 min |   | - Actions   |               |
+|  +------+------+   +------+------+   +------+------+               |
+|         |                 |                 |                       |
+|         +--------+--------+---------+-------+                       |
+|                  |                                                   |
+|         +--------v--------+                                         |
+|         |   Message Bus   |                                         |
+|         | (Priority Queue)|                                         |
+|         +--------+--------+                                         |
+|                  |                                                   |
+|     +------------+------------+                                     |
+|     |            |            |                                     |
+| +---v---+  +----v----+  +----v----+                                |
+| | Alert |  | Orchest-|  |Database |                                |
+| | Agent |  |  rator  |  |(SQLite) |                                |
+| +-------+  +---------+  +----+----+                                |
+|                               |                                     |
+|              +----------------+----------------+                    |
+|              |                                 |                    |
+|       +------v------+                  +-------v------+            |
+|       |  MCP Server |                  |  Streamlit   |            |
+|       | (LLM Layer) |                  |  Dashboard   |            |
+|       +-------------+                  +--------------+            |
++-------------------------------------------------------------------+
 ```
 
 ## Project Structure
 
 ```
 Cyber-Physical-Systems/
-├── multi-agent-system/        # Core multi-agent architecture
-│   ├── agent_base.py          # Base agent class
-│   ├── monitor_agent.py       # Data validation
-│   ├── predictor_agent.py     # Time-series forecasting
-│   ├── decision_agent.py      # Control logic
-│   ├── alert_agent.py         # Alert management
-│   ├── message_bus.py         # Event-driven communication
-│   ├── orchestrator.py        # System coordination
-│   └── demo.py                # 30-second simulation
-│
-├── mcp-server/                # MCP server for LLM advisory
-│   ├── server.py              # MCP implementation
-│   ├── database.py            # Data access layer
-│   └── config.py              # Configuration
-│
-├── ml-models/                 # Machine learning models
-│   ├── lstm_forecaster.py     # LSTM (94.2% accuracy)
-│   ├── gru_forecaster.py      # GRU (93.8% accuracy)
-│   ├── xgboost_forecaster.py  # XGBoost baseline
-│   └── basic_forecaster.py    # Simple forecaster
-│
-├── data-collection/           # Data ingestion pipeline
-│   ├── sensor_simulator.py    # Sensor data generation
-│   └── data_collector.py      # Data collection
-│
-├── streamlit-dashboard/       # Interactive dashboard
-│   ├── pages/
-│   │   ├── 1_Data_Analytics.py
-│   │   ├── 2_ML_Models.py
-│   │   └── 3_System_Health.py
-│   └── components/
-│
-├── .github/workflows/         # CI/CD pipelines
-│   ├── ci.yml                 # Continuous integration
-│   ├── cd.yml                 # Continuous deployment
-│   └── weekly-health-check.yml
-│
-└── docs/                      # Documentation
+|
+|-- multi-agent-system/              # Distributed agent architecture
+|   |-- message_bus.py               # Priority-based async pub/sub messaging
+|   |-- agent_base.py                # Abstract base class for all agents
+|   |-- monitor_agent.py             # Sensor ingestion and anomaly detection
+|   |-- predictor_agent.py           # ML-based temperature forecasting
+|   |-- decision_agent.py            # Threshold logic and escalation
+|   |-- alert_agent.py               # Alert lifecycle management
+|   |-- orchestrator.py              # System coordination and agent management
+|   |-- demo.py                      # Standalone multi-agent demo
+|   |-- test_multi_agent_system.py   # Unit tests
+|   |-- __init__.py
+|
+|-- ml-models/                       # Machine learning forecasters
+|   |-- lstm_forecaster.py           # LSTM neural network (TensorFlow)
+|   |-- gru_forecaster.py            # GRU neural network (TensorFlow)
+|   |-- xgboost_forecaster.py        # Gradient boosting with feature engineering
+|   |-- basic_forecaster.py          # Baseline: Moving Average + Exponential Smoothing
+|   |-- simple_arima_forecaster.py   # ARIMA forecaster (statsmodels)
+|   |-- advanced_mlflow_models.py    # Ensemble forecaster (weighted averaging)
+|   |-- mlflow_tracking.py           # MLflow experiment tracking wrapper
+|   |-- mlflow_experiment_runner.py  # Train all models and log to MLflow
+|   |-- mlflow_dashboard.py          # Streamlit page for MLflow results
+|   |-- compare_models.py            # Side-by-side model comparison script
+|   |-- test_lstm_forecaster.py      # LSTM unit tests
+|   |-- test_gru_forecaster.py       # GRU unit tests
+|   |-- test_xgboost_forecaster.py   # XGBoost unit tests
+|   |-- test_basic_forecaster.py     # Baseline model unit tests
+|   |-- test_moving_average_forecaster.py
+|   |-- __init__.py
+|
+|-- mcp-server/                      # LLM advisory layer via MCP
+|   |-- server.py                    # MCP server with tools, resources, prompts
+|   |-- database.py                  # Database query interface
+|   |-- db_logger.py                 # Real-time sensor/alert logging
+|   |-- initialize_db.py            # SQLite schema initialization
+|   |-- config.py                    # Server configuration
+|   |-- __init__.py
+|
+|-- streamlit-dashboard/             # Real-time visualization
+|   |-- app.py                       # Main multi-page dashboard
+|   |-- pages/
+|   |   |-- 1_Data_Analytics.py      # Temperature distribution, hourly patterns
+|   |   |-- 2_ML_Models.py           # Model comparison and accuracy metrics
+|   |   |-- 3_System_Health.py       # Agent status and system metrics
+|   |-- components/
+|   |   |-- metrics_cards.py         # Reusable KPI and status cards
+|   |   |-- sidebar.py              # Navigation sidebar component
+|   |-- config/
+|   |   |-- dashboard_config.py     # Thresholds, colors, settings
+|   |-- utils/
+|       |-- data_loader.py          # SQLite data loading utilities
+|       |-- ml_integration.py       # ML model loading for dashboard
+|       |-- path_setup.py           # Project path utilities
+|
+|-- .github/workflows/
+|   |-- ci.yml                       # CI/CD: lint, security, test, docker, deploy
+|
+|-- docker/                          # Container configuration
+|-- docker-compose.yml               # Multi-service orchestration
+|-- Dockerfile                       # Production container build
+|-- examples/
+|   |-- integrated_demo.py           # Full system demo with DB logging
+|-- data/                            # SQLite database storage
+|-- docs/                            # Documentation and reports
+|-- requirements.txt
+|-- LICENSE
 ```
 
-## Multi-Agent System
+## Installation
 
-### Components
+### Prerequisites
 
-**Monitor Agent**: Validates sensor data, detects anomalies (Z-score method, 3σ)
-- Performance: <5ms per reading, 98.5% accuracy
+- Python 3.9+
+- Docker (optional, for containerized deployment)
 
-**Predictor Agent**: Forecasts temperature 30-60 minutes ahead
-- Performance: <50ms latency, 85-90% accuracy
+### Setup
 
-**Decision Agent**: Makes control decisions based on rules and predictions
-- 4 decision types: MAINTAIN, ADJUST, ALERT, EMERGENCY
-- Breach tolerance: 5 minutes
+```bash
+# Clone
+git clone https://github.com/Humanitariansai/Cyber-Physical-Systems.git
+cd Cyber-Physical-Systems
 
-**Alert Agent**: Manages alert lifecycle with auto-escalation
-- 5 severity levels: INFO → WARNING → ERROR → CRITICAL → EMERGENCY
-- Auto-escalation: 15 minutes, Auto-resolve: 60 minutes
+# Virtual environment
+python -m venv .venv
+source .venv/bin/activate    # Linux/Mac
+.venv\Scripts\activate       # Windows
 
-**Message Bus**: Event-driven communication with priority queuing
-- 4 priority levels, 13 message types
-- Performance: <10ms latency, 1000+ msg/sec
+# Install dependencies
+pip install -r requirements.txt
+```
 
-**Orchestrator**: Coordinates agents, monitors health, auto-recovery
-- Health checks every 60s, graceful shutdown
+### Optional Dependencies
 
-### Message Types
+```bash
+# Full ML model support
+pip install tensorflow>=2.10.0 xgboost>=1.7.0
 
-- **Sensor**: SENSOR_DATA, VALIDATED_SENSOR_DATA, SENSOR_ANOMALY
-- **Prediction**: PREDICTION_RESULT, PREDICTION_WARNING
-- **Decision**: CONTROL_DECISION, DECISION_OVERRIDE
-- **Alert**: ALERT_TRIGGERED, ALERT_ACKNOWLEDGED, ALERT_RESOLVED, ALERT_ESCALATED
-- **System**: AGENT_STATUS, SYSTEM_HEALTH
+# Dashboard
+pip install streamlit>=1.28.0 plotly>=5.18.0
 
-## Machine Learning Models
+# Experiment tracking
+pip install mlflow>=2.0.0
 
-| Model | Accuracy | Edge Deploy | Latency | Use Case |
-|-------|----------|-------------|---------|----------|
-| LSTM | 94.2% | No | ~200ms | High accuracy |
-| GRU | 93.8% | Yes | ~150ms | Edge deployment |
-| XGBoost | 91.5% | Yes | ~50ms | Fast inference |
-| ARIMA | 88.7% | Yes | ~30ms | Statistical baseline |
+# ARIMA models
+pip install statsmodels>=0.14.0
 
-## MCP Server (LLM Advisory Layer)
+# MCP server
+pip install mcp
+```
 
-Provides intelligent post-incident analysis via Model Context Protocol:
+## Quick Start
 
-**Resources**:
-- Current sensor readings
-- Active and historical alerts
-- Prediction accuracy metrics
-- System health status
+### 1. Generate Sample Data
 
-**Tools**:
-- `analyze_incident`: Root cause analysis
-- `query_sensor_history`: Time-series queries
-- `find_similar_incidents`: Pattern matching
-- `generate_maintenance_report`: Preventive recommendations
+```bash
+python generate_sample_data.py
+```
 
-**Usage with Claude Desktop**:
+Populates the SQLite database with 7 days of sensor readings, alerts, and predictions.
+
+### 2. Run Streamlit Dashboard
+
+```bash
+python -m streamlit run streamlit-dashboard/app.py
+```
+
+Open http://localhost:8501 — navigate through Dashboard, Sensor Data, Predictions, Alerts, and System Health pages.
+
+### 3. Run Multi-Agent Demo
+
+```bash
+python multi-agent-system/demo.py
+```
+
+Simulates 10 seconds of sensor data flowing through the agent pipeline with live console output.
+
+### 4. Run Integrated Demo (Full Pipeline)
+
+```bash
+python examples/integrated_demo.py
+```
+
+Starts multi-agent system, simulates 20 seconds of data with temperature anomalies, logs everything to the database.
+
+### 5. Start MCP Server (LLM Advisory Integration)
+
+```bash
+python mcp-server/server.py
+```
+
+Add to your MCP client config:
+
 ```json
 {
   "mcpServers": {
     "cold-chain": {
       "command": "python",
-      "args": ["path/to/mcp-server/server.py"]
+      "args": ["C:/path/to/Cyber-Physical-Systems/mcp-server/server.py"]
     }
   }
 }
 ```
 
-## Dashboard Features
+Then query: *"What alerts were triggered recently?"* or *"Analyze the latest temperature incident."*
 
-- **Real-time Monitoring**: Live sensor data with trend visualization
-- **Predictive Analytics**: 30-minute forecast display
-- **Alert Management**: Active alerts with acknowledgment
-- **Model Comparison**: Performance metrics across ML models
-- **System Health**: Agent status and message bus metrics
-- **MLflow Integration**: Experiment tracking and model registry
+## Dashboard Screenshots
 
-## Performance Metrics
+### Main Dashboard
+Real-time KPI cards, live temperature chart with threshold bands, humidity overlay, and active alerts.
 
-```
-Message Bus:           <10ms latency (99th percentile)
-Agent Processing:      <50ms per message
-End-to-End Alert:      <100ms (sensor to alert)
-Throughput:            1000+ messages/second
-Memory Footprint:      ~50MB (all agents)
-CPU Usage:             <5% idle, <20% under load
-Prediction Accuracy:   85-90% (30 min ahead)
-```
+![Dashboard](images/Streamlit_Dashboard.png)
 
-## Use Case: Pharmaceutical Cold Chain
+### Sensor Data Analytics
+Temperature distribution histograms, hourly patterns, and raw data table with CSV export.
 
-### Problem
-- $35B annual pharmaceutical losses
-- 25% of vaccines arrive degraded
-- 50% failures from temperature excursions
-- Manual monitoring is reactive
+![Sensor Data Analytics](images/Sensor_data_analytics_page.png)
 
-### Solution
-- 30-60 minute early warning before breaches
-- Proactive intervention prevents damage
-- Edge deployment in resource-constrained environments
-- Compliance with FDA 21 CFR Part 11, WHO PQS standards
+### Predictions
+30/60-minute forecasts with confidence intervals and historical vs predicted comparison.
 
-### ROI (100-zone facility)
-- Average incident cost: $50,000
-- Incidents prevented/year: 10-15
-- Annual savings: $500K - $750K
-- System cost: ~$50K
-- **Payback period: 1-2 months**
+![Predictions](images/Predictions_page.png)
 
-## Development Roadmap
+### Alerts Management
+Severity filtering, alert acknowledgment, and expandable incident details.
 
-### Phase 1: Foundation ✅ (Completed)
-- Multi-agent system implementation
-- ML model training and evaluation
-- Streamlit dashboard
-- CI/CD pipelines
+![Alerts Management](images/Alerts%20management.png)
 
-### Phase 2: Integration ✅ (Completed)
-- MCP server for LLM advisory
-- Database schema for persistence
-- Multi-agent README documentation
+### System Health
+Agent status cards, message bus throughput, and prediction accuracy metrics.
 
-### Phase 3: Enhancement (In Progress)
-- Dashboard cold chain monitoring page
-- Real sensor data integration
-- Alert persistence and analytics
-- ML model integration with predictor agent
+![System Health](images/System_health.png)
 
-### Phase 4: Deployment (Upcoming)
-- Raspberry Pi 4 edge deployment
-- DHT22 sensor integration
-- Real-world validation
-- Production hardening
+## Multi-Agent System
 
-## CI/CD Pipelines
+### Agents
 
-- **ci.yml**: Multi-Python testing (3.10, 3.11, 3.12), linting, type checking
-- **cd.yml**: Docker builds, staging/production deployment
-- **weekly-health-check.yml**: Scheduled maintenance, security audits
-- **pr-checks.yml**: Pre-merge quality gates
-- **test.yml**: Comprehensive test automation
+| Agent | Role | Key Logic |
+|-------|------|-----------|
+| **MonitorAgent** | First line of defense | Validates data, detects threshold breaches, statistical anomalies, rate-of-change alerts |
+| **PredictorAgent** | Forecasting | Runs LSTM/GRU/XGBoost ensemble, produces 30/60-min predictions with confidence scores |
+| **DecisionAgent** | Decision making | Applies pharmaceutical business rules, escalation logic, preemptive action triggers |
+| **AlertAgent** | Alert management | Lifecycle: triggered → acknowledged → resolved. Deduplication, cooldown, auto-escalation |
 
-## Testing
+### Message Bus
+
+Asynchronous priority-based routing:
+
+| Priority | Level | Use Case |
+|----------|-------|----------|
+| CRITICAL | 4 | Emergency — immediate action |
+| HIGH | 3 | Threshold violations, escalations |
+| NORMAL | 2 | Regular sensor data, predictions |
+| LOW | 1 | Heartbeats, status updates |
+
+## ML Models
+
+| Model | Architecture | 30-min MAE | 60-min MAE | Training Time |
+|-------|-------------|-----------|-----------|---------------|
+| **LSTM** | 2-layer (64, 32), dropout 0.2 | ~0.31°C | ~0.58°C | ~2 min |
+| **GRU** | 64 units, bidirectional option | ~0.35°C | ~0.63°C | ~1.2 min |
+| **XGBoost** | 100 estimators, depth 6, lag features | ~0.42°C | ~0.74°C | ~10 sec |
+| **Ensemble** | Weighted: LSTM 0.4, GRU 0.35, XGB 0.25 | ~0.28°C | ~0.55°C | Combined |
+| **Baseline** | Moving Average + Exponential Smoothing | ~0.48°C | ~0.85°C | <1 sec |
+
+All models fall back gracefully if optional dependencies (TensorFlow, XGBoost, statsmodels) are not installed.
+
+### MLflow Tracking
 
 ```bash
-# Run multi-agent system tests
-cd multi-agent-system/tests
-pytest test_multi_agent_system.py -v
+# Run experiments
+python ml-models/mlflow_experiment_runner.py
 
-# Run ML model tests
-cd ml-models
-pytest test_*.py -v
+# Compare models
+python ml-models/compare_models.py
 
-# Test coverage: ~85%
+# View MLflow UI
+mlflow ui --backend-store-uri mlruns
+# Open http://localhost:5000
+```
+
+## MCP Server — LLM Advisory Layer
+
+### Resources (Read-Only Data)
+
+| URI | Description |
+|-----|-------------|
+| `sensor://current-readings` | Real-time temperature/humidity |
+| `alerts://active` | Active alerts needing attention |
+| `alerts://history` | 30-day alert history |
+| `predictions://accuracy` | Model performance stats |
+| `system://health` | Agent and message bus health |
+
+### Tools (Actions LLM Can Execute)
+
+| Tool | Description |
+|------|-------------|
+| `analyze_incident` | Root cause analysis with trend detection and similar incident matching |
+| `query_sensor_history` | Historical data with computed statistics |
+| `find_similar_incidents` | Pattern matching against past events |
+| `generate_maintenance_report` | Preventive maintenance recommendations |
+
+### Prompts (Pre-Built Templates)
+
+- `analyze_latest_incident` — Analyze most recent temperature breach
+- `system_performance_summary` — Weekly system performance overview
+- `troubleshoot_sensor` — Diagnose issues with a specific sensor
+
+## CI/CD Pipeline
+
+```yaml
+# .github/workflows/ci.yml
+Stages:
+  1. Lint      → flake8 code quality
+  2. Security  → bandit vulnerability scanning
+  3. Test      → pytest with coverage
+  4. Docker    → Multi-stage build and push
+  5. Deploy    → Automated staging/production
+```
+
+Triggers on push to `main`/`develop` and all pull requests.
+
+## Docker
+
+```bash
+# Build
+docker build -t cold-chain-monitor .
+
+# Run
+docker run -p 8501:8501 -p 8000:8000 cold-chain-monitor
+
+# Or use Docker Compose
+docker-compose up -d
 ```
 
 ## Configuration
 
-### Cold Chain Monitoring
-```python
-# Temperature range: 2-8°C (pharmaceutical standard)
-target_temp_min = 2.0
-target_temp_max = 8.0
+### Temperature Thresholds
 
-# Prediction window: 30-60 minutes
-forecast_horizon_minutes = 30
-prediction_interval_seconds = 60
+| Parameter | Default | Description |
+|-----------|---------|-------------|
+| `temp_min` | 2.0°C | Minimum safe (WHO standard) |
+| `temp_max` | 8.0°C | Maximum safe |
+| `critical_min` | 0.0°C | Critical low — freezing risk |
+| `critical_max` | 10.0°C | Critical high |
 
-# Alert thresholds
-consecutive_warnings_threshold = 2
-breach_tolerance_seconds = 300
+### Prediction Horizons
+
+| Horizon | Use Case |
+|---------|----------|
+| 30 min | Immediate operational decisions |
+| 60 min | Logistics planning, preemptive actions |
+
+## Testing
+
+```bash
+# Multi-agent system tests
+python -m pytest multi-agent-system/test_multi_agent_system.py -v
+
+# ML model tests
+python -m pytest ml-models/test_*.py -v
+
+# All tests
+python -m pytest --tb=short
 ```
 
-## Technology Stack
+## Tech Stack
 
-- **Language**: Python 3.11
-- **Async Runtime**: asyncio
-- **ML**: TensorFlow 2.20.0, scikit-learn
-- **Dashboard**: Streamlit 1.27.2
-- **Tracking**: MLflow 2.8.0
-- **Testing**: pytest, pytest-asyncio
-- **CI/CD**: GitHub Actions
-- **Edge**: Raspberry Pi 4, DHT22 sensors
+| Layer | Technology |
+|-------|-----------|
+| Agent Framework | Python asyncio |
+| Communication | Custom Priority Message Bus |
+| Neural Networks | TensorFlow / Keras |
+| Gradient Boosting | XGBoost |
+| LLM Integration | MCP (Model Context Protocol) |
+| Dashboard | Streamlit + Plotly |
+| Experiment Tracking | MLflow |
+| Database | SQLite |
+| CI/CD | GitHub Actions |
+| Containerization | Docker + Docker Compose |
+| Security Scanning | Bandit |
 
-## Contributing
+## Future Scope
 
-1. Fork the repository
-2. Create feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit changes (`git commit -m 'Add amazing feature'`)
-4. Push to branch (`git push origin feature/amazing-feature`)
-5. Open Pull Request
-
-### Code Style
-- Python 3.11+ with type hints
-- Black formatter (line length: 100)
-- Docstrings for public methods
-- Async/await for I/O operations
-
-## Documentation
-
-- [Multi-Agent System](multi-agent-system/README.md)
-- [MCP Server](mcp-server/README.md)
-- [ML Models](ml-models/README.md)
-- [MLflow Guide](ml-models/MLFLOW_GUIDE.md)
-- [Local Deployment](LOCAL_DEPLOYMENT.md)
-- [Hyperparameter Optimization](HYPERPARAMETER_OPTIMIZATION_GUIDE.md)
+- **Real IoT Sensor Integration** — Connect to physical DHT22/DS18B20 sensors via MQTT for live cold storage monitoring
+- **Cloud Deployment** — Deploy to Azure IoT Hub or AWS IoT Core for multi-site scalability
+- **Edge Inference** — Run lightweight TFLite models on Raspberry Pi at sensor locations for low-latency predictions
+- **Advanced Anomaly Detection** — Implement Isolation Forest and autoencoder-based anomaly detection for unsupervised pattern discovery
+- **Mobile Alerts** — Push notifications via Twilio SMS/WhatsApp for on-call operators
+- **Regulatory Reporting** — Automated FDA 21 CFR Part 211 compliant temperature excursion reports
+- **Digital Twin** — 3D visualization of cold storage facilities with real-time sensor overlay
+- **Multi-Site Monitoring** — Scale to monitor multiple warehouses, transport vehicles, and pharmacy locations from a single dashboard
+- **Federated Learning** — Train models across distributed sites without centralizing sensitive data
+- **Reinforcement Learning** — Optimize HVAC control actions based on predicted temperature trajectories
 
 ## License
 
-MIT License - See [LICENSE](LICENSE) file for details
-
-## References
-
-- [Model Context Protocol](https://modelcontextprotocol.io/)
-- [WHO PQS Cold Chain Standards](https://www.who.int/pqs)
-- [FDA 21 CFR Part 11](https://www.fda.gov/regulatory-information/search-fda-guidance-documents/part-11-electronic-records-electronic-signatures-scope-and-application)
-
-## Acknowledgments
-
-Built for humanitarian impact in pharmaceutical supply chain management.
-
-## Contact
-
-GitHub: [Humanitariansai/Cyber-Physical-Systems](https://github.com/Humanitariansai/Cyber-Physical-Systems)
-
----
-
-**Status**: Active Development | **Version**: 1.0.0 | **Last Updated**: December 2025
+MIT License — see [LICENSE](LICENSE).
